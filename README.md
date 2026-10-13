@@ -7,7 +7,53 @@
 
 ## Specs
 
+### Vista general de paquetes
+
+```mermaid
+flowchart LR
+    app --> controller
+    app --> view
+    app --> network
+    app --> model
+    controller --> model
+    controller --> network
+    network --> model
+    view --> model
+    model -.-> constants
+    network -.-> constants
+    controller -.-> constants
+    view -.-> constants
+```
+
 ### Package: constants
+
+```mermaid
+classDiagram
+    class IConstants {
+        <<interface>>
+        +String SERVER_HOST$
+        +int SERVER_PORT$
+        +int MATCH_CODE_LENGTH$
+        +String MATCH_CODE_REGEX$
+        +int NICKNAME_MIN_LENGTH$
+        +int NICKNAME_MAX_LENGTH$
+        +int ZONE_COUNT$
+        +int SPECIES_COUNT$
+        +int MAX_PLAYER_ENERGY$
+        +int TARGET_FPS$
+        +int FRAME_DELAY_MS$
+        +int WINDOW_WIDTH$
+        +int WINDOW_HEIGHT$
+        +int SPRITE_SIZE$
+        +int ENERGY_BAR_HEIGHT$
+        +int CLICK_TOLERANCE$
+        +String ASSETS_PATH$
+        +Color PLAYER_COLOR$
+        +Color OPPONENT_COLOR$
+        +Color BOT_COLOR$
+        +Color SELECTION_COLOR$
+    }
+```
 
 ```java
 public interface IConstants
@@ -38,6 +84,161 @@ public interface IConstants
 ### Package: model
 
 **Clase principal testeable:** `GameModel`
+
+```mermaid
+classDiagram
+    class AnimalSpecies {
+        <<enumeration>>
+        JAGUAR
+        SLOTH
+        MACAW
+        MONKEY
+        TOUCAN
+        FROG
+        PIZOTE
+        -String displayName
+        -String svgFile
+        +getDisplayName() String
+        +getSvgFile() String
+        +fromName(String name)$ AnimalSpecies
+    }
+    class PackType {
+        <<enumeration>>
+        PLAYER
+        OPPONENT
+        BOT
+    }
+    class GamePhase {
+        <<enumeration>>
+        LOBBY
+        WAITING_OPPONENT
+        SELECTING_ANIMAL
+        PLAYING
+        GAME_OVER
+    }
+    class EventType {
+        <<enumeration>>
+        ATTACK
+        ANIMAL_DIED
+        CUP_COLLECTED
+        BOT_KILLED
+    }
+    class Entity {
+        <<abstract>>
+        #int id
+        #double x
+        #double y
+        +getId() int
+        +getX() double
+        +getY() double
+        +setPosition(double x, double y) void
+        +getSvgName()* String
+    }
+    class Animal {
+        -AnimalSpecies species
+        -int packId
+        -int energy
+        -boolean alive
+        -boolean selected
+        -double prevX
+        -double prevY
+        +getRenderX(double alpha) double
+        +getRenderY(double alpha) double
+        +applyState(int energy, double x, double y) void
+        +isAlive() boolean
+        +isSelected() boolean
+        +setSelected(boolean selected) void
+        +getSvgName() String
+    }
+    class CoffeeCup {
+        +getSvgName() String
+    }
+    class Flag {
+        -PackType owner
+        +getSvgName() String
+    }
+    class Pack {
+        -int id
+        -AnimalSpecies species
+        -PackType type
+        -int damageCapacity
+        -List~Animal~ members
+        +getLivingMembers() List~Animal~
+        +countAlive() int
+    }
+    class Zone {
+        -int id
+        -List~Integer~ neighborIds
+        -List~PathSegment~ paths
+        -boolean visible
+        -List~Entity~ entities
+        +isVisible() boolean
+        +getEntities() List~Entity~
+    }
+    class PathSegment {
+        -double x1, y1
+        -double x2, y2
+        +contains(double x, double y) boolean
+    }
+    class MatchSummary {
+        -String winnerNickname
+        -int botsEliminated
+        -Map~Integer,Integer~ animalsEliminatedByPack
+        -int playerCups
+        -int opponentCups
+        -long durationMs
+    }
+    class GameEvent {
+        -EventType type
+        -int sourceId
+        -int targetId
+        +getType() EventType
+    }
+    class IGameObserver {
+        <<interface>>
+        +onModelChanged(GameEvent event) void
+    }
+    class GameModel {
+        -GamePhase phase
+        -String nickname
+        -String matchCode
+        -int currentZoneId
+        -Map~Integer,Zone~ zones
+        -List~Pack~ packs
+        -List~Animal~ selectedAnimals
+        -int botsKilled
+        -int cupsConsumed
+        -MatchSummary summary
+        -List~IGameObserver~ observers
+        +addObserver(IGameObserver o) void
+        +removeObserver(IGameObserver o) void
+        -notifyObservers(GameEvent event) void
+        +applySnapshot(StateSnapshot snapshot) void
+        +setPhase(GamePhase phase) void
+        +setCurrentZone(int zoneId) void
+        +getCurrentZone() Zone
+        +getSelectedAnimals() List~Animal~
+    }
+    note for GameModel "Subject del patrón Observer"
+
+    Entity <|-- Animal
+    Entity <|-- CoffeeCup
+    Entity <|-- Flag
+    Animal --> AnimalSpecies
+    Flag --> PackType
+    Pack --> AnimalSpecies
+    Pack --> PackType
+    Pack "1" *-- "many" Animal : members
+    Zone "1" *-- "many" PathSegment : paths
+    Zone "1" o-- "many" Entity : entities
+    GameEvent --> EventType
+    GameModel --> GamePhase
+    GameModel "1" *-- "12" Zone : zones
+    GameModel "1" o-- "many" Pack : packs
+    GameModel --> MatchSummary
+    GameModel "1" o-- "many" IGameObserver : observers
+    IGameObserver ..> GameEvent
+```
 
 ```java
 enum AnimalSpecies
@@ -153,6 +354,108 @@ class GameModel  (Subject del Observer)
 
 **Clase principal testeable:** `MessageSerializer`
 
+```mermaid
+classDiagram
+    class MessageType {
+        <<enumeration>>
+        CREATE_MATCH
+        JOIN_MATCH
+        SELECT_ANIMAL
+        MOVE_ANIMALS
+        ATTACK
+        VIEW_ZONE
+        MATCH_CREATED
+        MATCH_JOINED
+        ERROR
+        ANIMAL_SELECTION
+        GAME_STARTED
+        STATE_UPDATE
+        GAME_OVER
+    }
+    class Message {
+        -MessageType type
+        -JsonObject payload
+        +getType() MessageType
+        +getPayload() JsonObject
+        +create(MessageType type, Map~String,Object~ fields)$ Message
+    }
+    class MessageSerializer {
+        -Gson GSON$
+        +toJson(Message message)$ String
+        +fromJson(String line)$ Message
+        +payloadAs(Message m, Class~T~ type)$ T
+    }
+    class StateSnapshot {
+        <<DTO>>
+        -long serverTime
+        -int zoneId
+        -List~AnimalState~ animals
+        -List~CupState~ cups
+        -int playerDamageCapacity
+        -List~GameEvent~ events
+    }
+    class ServerConnection {
+        <<Singleton>>
+        -Socket socket
+        -BufferedReader reader
+        -PrintWriter writer
+        -MessageReceiver receiver
+        -ServerConnection()
+        +getInstance()$ ServerConnection
+        +connect(MessageDispatcher dispatcher) void
+        +send(Message message) void
+        +close() void
+    }
+    note for ServerConnection "Holder idiom. send() es synchronized"
+    class Runnable {
+        <<interface>>
+        +run() void
+    }
+    class MessageReceiver {
+        -BufferedReader reader
+        -MessageDispatcher dispatcher
+        -boolean running
+        +run() void
+        +stop() void
+    }
+    class IMessageHandler {
+        <<interface>>
+        +handle(Message message) void
+    }
+    class MessageDispatcher {
+        -Map~MessageType,IMessageHandler~ handlers
+        -GameModel model
+        +register(MessageType type, IMessageHandler handler) void
+        +dispatch(Message message) void
+    }
+    note for MessageDispatcher "Strategy. Ejecuta con SwingUtilities.invokeLater"
+    class MatchCreatedHandler
+    class MatchJoinedHandler
+    class AnimalSelectionHandler
+    class GameStartedHandler
+    class StateUpdateHandler
+    class GameOverHandler
+    class ErrorHandler
+
+    Message --> MessageType
+    MessageSerializer ..> Message
+    MessageSerializer ..> StateSnapshot
+    ServerConnection *-- MessageReceiver
+    ServerConnection ..> Message : send
+    Runnable <|.. MessageReceiver
+    MessageReceiver --> MessageDispatcher
+    MessageDispatcher "1" o-- "many" IMessageHandler : handlers
+    MessageDispatcher --> GameModel
+    IMessageHandler <|.. MatchCreatedHandler
+    IMessageHandler <|.. MatchJoinedHandler
+    IMessageHandler <|.. AnimalSelectionHandler
+    IMessageHandler <|.. GameStartedHandler
+    IMessageHandler <|.. StateUpdateHandler
+    IMessageHandler <|.. GameOverHandler
+    IMessageHandler <|.. ErrorHandler
+    StateUpdateHandler ..> StateSnapshot
+```
+
 ```java
 enum MessageType
 CREATE_MATCH, JOIN_MATCH, SELECT_ANIMAL, MOVE_ANIMALS, ATTACK, VIEW_ZONE // cliente  -> servidor
@@ -221,6 +524,54 @@ class ErrorHandler // código inválido, partida llena, especie ya tomada: notif
 
 **Clase principal testeable:** `SelectionManager`
 
+```mermaid
+classDiagram
+    class SelectionManager {
+        -GameModel model
+        +selectAt(double x, double y, boolean addToSelection) void
+        +selectInRectangle(Rectangle2D area) void
+        +clearSelection() void
+        +getSelectedIds() List~Integer~
+        +findAnimalAt(double x, double y) Animal
+    }
+    class GameController {
+        -GameModel model
+        -ServerConnection connection
+        -SelectionManager selectionManager
+        +onMoveRequested(double x, double y) void
+        +onAttackRequested(int targetId) void
+        +onZoneChangeRequested(int zoneId) void
+    }
+    class LobbyController {
+        -ServerConnection connection
+        +createMatch(String nickname) void
+        +joinMatch(String nickname, String code) void
+        +selectAnimal(AnimalSpecies species) void
+        -isValidNickname(String nickname) boolean
+        -isValidCode(String code) boolean
+    }
+    class MouseAdapter {
+        <<Swing>>
+    }
+    class InputHandler {
+        -GameController controller
+        -SelectionManager selectionManager
+        -Point dragStart
+        +mousePressed(MouseEvent e) void
+        +mouseReleased(MouseEvent e) void
+        +mouseClicked(MouseEvent e) void
+    }
+
+    MouseAdapter <|-- InputHandler
+    InputHandler --> GameController
+    InputHandler --> SelectionManager
+    GameController --> SelectionManager
+    GameController --> GameModel
+    GameController --> ServerConnection
+    LobbyController --> ServerConnection
+    SelectionManager --> GameModel
+```
+
 ```java
 class SelectionManager
 -GameModel model
@@ -258,6 +609,111 @@ class InputHandler extends MouseAdapter
 ### Package: view
 
 **Clase principal testeable:** `CoordinateMapper`
+
+```mermaid
+classDiagram
+    class CoordinateMapper {
+        +toWorldX(int screenX, int panelWidth)$ double
+        +toWorldY(int screenY, int panelHeight)$ double
+        +toScreenX(double worldX, int panelWidth)$ int
+        +toScreenY(double worldY, int panelHeight)$ int
+    }
+    class SvgCache {
+        <<Singleton>>
+        -Map~String,BufferedImage~ cache
+        +getInstance()$ SvgCache
+        +preload() void
+        +get(String svgName, int size) BufferedImage
+    }
+    note for SvgCache "Holder idiom. Rasteriza los SVG con JSVG"
+    class IDrawable {
+        <<interface>>
+        +draw(Graphics2D g, double alpha) void
+    }
+    class AnimalSprite
+    class CupSprite
+    class FlagSprite
+    class PathRenderer
+    class SelectionBoxRenderer
+    class IGameObserver {
+        <<interface>>
+        +onModelChanged(GameEvent event) void
+    }
+    class JFrame {
+        <<Swing>>
+    }
+    class JPanel {
+        <<Swing>>
+    }
+    class MainWindow {
+        -CardLayout layout
+        -LobbyPanel lobbyPanel
+        -AnimalSelectionPanel selectionPanel
+        -GamePanel gamePanel
+        -SummaryPanel summaryPanel
+        -configureWindow() void
+        -showCard(GamePhase phase) void
+        +onModelChanged(GameEvent event) void
+    }
+    class LobbyPanel {
+        +JTextField txtNickname
+        +JTextField txtMatchCode
+        +JButton btnCreate
+        +JButton btnJoin
+        +JLabel lblCode
+        +JLabel lblError
+    }
+    class AnimalSelectionPanel {
+        -List~JButton~ speciesButtons
+        +updateAvailable(List~AnimalSpecies~ available, AnimalSpecies opponentChoice) void
+    }
+    class GamePanel {
+        -GameModel model
+        -Timer animationTimer
+        -List~IDrawable~ drawables
+        -double interpolationAlpha
+        #paintComponent(Graphics g) void
+        -buildDrawables() void
+        +onModelChanged(GameEvent event) void
+    }
+    class HudPanel {
+        -JLabel lblBotsKilled
+        -JLabel lblCups
+        -JLabel lblDamage
+        -List~JButton~ zoneButtons
+        +refresh(GameModel model) void
+    }
+    class SummaryPanel {
+        +JButton btnBackToLobby
+        +showSummary(MatchSummary summary) void
+    }
+
+    IDrawable <|.. AnimalSprite
+    IDrawable <|.. CupSprite
+    IDrawable <|.. FlagSprite
+    IDrawable <|.. PathRenderer
+    IDrawable <|.. SelectionBoxRenderer
+    AnimalSprite ..> SvgCache
+    CupSprite ..> SvgCache
+    FlagSprite ..> SvgCache
+
+    JFrame <|-- MainWindow
+    JPanel <|-- LobbyPanel
+    JPanel <|-- AnimalSelectionPanel
+    JPanel <|-- GamePanel
+    JPanel <|-- HudPanel
+    JPanel <|-- SummaryPanel
+    IGameObserver <|.. MainWindow
+    IGameObserver <|.. GamePanel
+
+    MainWindow *-- LobbyPanel
+    MainWindow *-- AnimalSelectionPanel
+    MainWindow *-- GamePanel
+    MainWindow *-- SummaryPanel
+    GamePanel "1" o-- "many" IDrawable : drawables
+    GamePanel ..> CoordinateMapper
+    HudPanel ..> GameModel
+```
 
 ```java
 class CoordinateMapper
@@ -327,6 +783,19 @@ class SummaryPanel extends JPanel
 ```
 
 ### Package: app
+
+```mermaid
+classDiagram
+    class ClientApp {
+        +main(String[] args)$ void
+    }
+    ClientApp ..> GameModel : crea
+    ClientApp ..> ServerConnection : crea
+    ClientApp ..> MessageDispatcher : crea
+    ClientApp ..> LobbyController : crea
+    ClientApp ..> GameController : crea
+    ClientApp ..> MainWindow : crea
+```
 
 ```java
 class ClientApp
