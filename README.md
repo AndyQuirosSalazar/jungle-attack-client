@@ -1,48 +1,47 @@
+# Jungle Attack - Cliente
 
+## Integrantes
 
+- Andy Quiros Salazar
+- Jordan Seas Alvarez
 
-Integrantes:
+## Specs
 
-Andy Quiros Salazar
-Jordan Seas Alvarez
+### Package: constants
 
-Specs
-
-Package: constants
-
-
+```java
 public interface IConstants
 
-+static final String SERVER\_HOST = "localhost" // host del servidor
-+static final int SERVER\_PORT = por definir // puerto del servidor
-+static final int MATCH\_CODE\_LENGTH = 4 // largo del código de partida
-+static final String MATCH\_CODE\_REGEX = "\[A-Za-z0-9]{4}" // validación local del código
-+static final int NICKNAME\_MIN\_LENGTH = por definir // largo mínimo del apodo
-+static final int NICKNAME\_MAX\_LENGTH = por definir // largo máximo del apodo
-+static final int ZONE\_COUNT = 12 // zonas del mapa
-+static final int SPECIES\_COUNT = 7 // especies disponibles
-+static final int MAX\_PLAYER\_ENERGY = 20 // energía máxima de un animal del jugador
-+static final int TARGET\_FPS = 30 // cuadros por segundo del render
-+static final int FRAME\_DELAY\_MS = 1000 / TARGET\_FPS // delay del Timer de Swing
-+static final int WINDOW\_WIDTH // ancho de la ventana
-+static final int WINDOW\_HEIGHT // alto de la ventana
-+static final int SPRITE\_SIZE // tamaño de un animal en pantalla
-+static final int ENERGY\_BAR\_HEIGHT // alto de la barra de energía
-+static final int CLICK\_TOLERANCE // radio en píxeles para detectar un clic sobre un animal
-+static final String ASSETS\_PATH = "/assets/svg/" // carpeta de los SVG
-+static final Color PLAYER\_COLOR // color del pack del jugador
-+static final Color OPPONENT\_COLOR // color del pack del oponente
-+static final Color BOT\_COLOR // color de los packs bot
-+static final Color SELECTION\_COLOR // color del resaltado de selección
++static final String SERVER_HOST = "localhost" // host del servidor
++static final int SERVER_PORT = por definir // puerto del servidor
++static final int MATCH_CODE_LENGTH = 4 // largo del código de partida
++static final String MATCH_CODE_REGEX = "[A-Za-z0-9]{4}" // validación local del código
++static final int NICKNAME_MIN_LENGTH = por definir // largo mínimo del apodo
++static final int NICKNAME_MAX_LENGTH = por definir // largo máximo del apodo
++static final int ZONE_COUNT = 12 // zonas del mapa
++static final int SPECIES_COUNT = 7 // especies disponibles
++static final int MAX_PLAYER_ENERGY = 20 // energía máxima de un animal del jugador
++static final int TARGET_FPS = 30 // cuadros por segundo del render
++static final int FRAME_DELAY_MS = 1000 / TARGET_FPS // delay del Timer de Swing
++static final int WINDOW_WIDTH // ancho de la ventana
++static final int WINDOW_HEIGHT // alto de la ventana
++static final int SPRITE_SIZE // tamaño de un animal en pantalla
++static final int ENERGY_BAR_HEIGHT // alto de la barra de energía
++static final int CLICK_TOLERANCE // radio en píxeles para detectar un clic sobre un animal
++static final String ASSETS_PATH = "/assets/svg/" // carpeta de los SVG
++static final Color PLAYER_COLOR // color del pack del jugador
++static final Color OPPONENT_COLOR // color del pack del oponente
++static final Color BOT_COLOR // color de los packs bot
++static final Color SELECTION_COLOR // color del resaltado de selección
+```
 
-Package: model
+### Package: model
 
-Clase principal testeable: GameModel
+**Clase principal testeable:** `GameModel`
 
+```java
 enum AnimalSpecies
-
 JAGUAR, SLOTH, MACAW, MONKEY, TOUCAN, FROG, PIZOTE // las 7 especies nativas de Costa Rica
-
 -String displayName // nombre para mostrar
 -String svgFile // nombre del archivo SVG del animal
 +String getDisplayName()
@@ -148,12 +147,13 @@ class GameModel  (Subject del Observer)
 +void setCurrentZone(int zoneId) // solo permite zonas donde hay animales vivos
 +Zone getCurrentZone()
 +List<Animal> getSelectedAnimals()
+```
 
+### Package: network
 
-Package: network
+**Clase principal testeable:** `MessageSerializer`
 
-**Clase principal testeable:*MessageSerializer
-
+```java
 enum MessageType
 CREATE_MATCH, JOIN_MATCH, SELECT_ANIMAL, MOVE_ANIMALS, ATTACK, VIEW_ZONE // cliente  -> servidor
 MATCH_CREATED, MATCH_JOINED, ERROR, ANIMAL_SELECTION, GAME_STARTED, STATE_UPDATE, GAME_OVER // servidor -> cliente
@@ -179,7 +179,7 @@ class StateSnapshot  (DTO del STATE_UPDATE)
 -int playerDamageCapacity // daño actual del pack del jugador
 -List<GameEvent> events // eventos desde el snapshot anterior
 
-class ServerConnection  (Singleton, *holder idiom*)
+class ServerConnection  (Singleton, holder idiom)
 -static class Holder // clase interna que guarda INSTANCE
 -Socket socket
 -BufferedReader reader // UTF-8
@@ -207,7 +207,7 @@ class MessageDispatcher
 +void register(MessageType type, IMessageHandler handler)
 +void dispatch(Message message) // busca el manejador y lo ejecuta con SwingUtilities.invokeLater
 
-Manejadores (todos implements IMessageHandler)
+// Manejadores (todos implements IMessageHandler)
 class MatchCreatedHandler // guarda el código y pasa a WAITING_OPPONENT
 class MatchJoinedHandler // pasa a SELECTING_ANIMAL
 class AnimalSelectionHandler // actualiza especies disponibles y la elección del oponente
@@ -215,12 +215,13 @@ class GameStartedHandler // carga mapa, zona propia y pack inicial; pasa a PLAYI
 class StateUpdateHandler // llama a model.applySnapshot(...)
 class GameOverHandler // guarda el MatchSummary y pasa a GAME_OVER
 class ErrorHandler // código inválido, partida llena, especie ya tomada: notifica a la vista
+```
 
+### Package: controller
 
-Package: controller
+**Clase principal testeable:** `SelectionManager`
 
-**Clase principal testeable:*SelectionManager
-
+```java
 class SelectionManager
 -GameModel model
 +void selectAt(double x, double y, boolean addToSelection) // clic simple sobre un animal propio
@@ -252,12 +253,13 @@ class InputHandler extends MouseAdapter
 +void mousePressed(MouseEvent e) // clic izquierdo: inicia selección
 +void mouseReleased(MouseEvent e) // clic izquierdo: termina el rectángulo de selección
 +void mouseClicked(MouseEvent e) // clic derecho en camino: mover; clic derecho sobre enemigo/bot: atacar
+```
 
+### Package: view
 
-Package: view
+**Clase principal testeable:** `CoordinateMapper`
 
-**Clase principal testeable:*CoordinateMapper
-
+```java
 class CoordinateMapper
 +static double toWorldX(int screenX, int panelWidth) // pantalla → coordenadas del mapa
 +static double toWorldY(int screenY, int panelHeight)
@@ -274,7 +276,7 @@ class SvgCache  (Singleton)
 interface IDrawable
 +void draw(Graphics2D g, double alpha) // cada elemento sabe dibujarse (polimorfismo)
 
-Dibujables (todos implements IDrawable)
+// Dibujables (todos implements IDrawable)
 class AnimalSprite // imagen SVG +barra de energía +resaltado si está seleccionado +color del pack
 class CupSprite // taza de café sobre el camino
 class FlagSprite // bandera con el color de su dueño
@@ -322,9 +324,11 @@ class HudPanel extends JPanel
 class SummaryPanel extends JPanel
 +void showSummary(MatchSummary summary) // bots eliminados, bajas por pack, tazas por jugador y duración
 +JButton btnBackToLobby
+```
 
+### Package: app
 
-Package: app
-
+```java
 class ClientApp
 +static void main(String[] args) // crea el modelo, la conexión, los controladores y la ventana; conecta todo
+```
