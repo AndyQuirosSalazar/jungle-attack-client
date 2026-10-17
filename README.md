@@ -2,10 +2,12 @@
 
 ## Integrantes
 
-- Andy Quiros Salazar
-- Jordan Seas Alvarez
+* Andy Quiros Salazar
+* Jordan Seas Alvarez
 
 ## Specs
+
+> El contrato JSON completo (mensajes, campos y códigos de error) está en el README del servidor, sección \*\*Package: protocol\*\*. Los records de `model.dto.Payloads` del cliente son una copia exacta de los del servidor.
 
 ### Vista general de paquetes
 
@@ -25,60 +27,83 @@ flowchart LR
     view -.-> constants
 ```
 
+> `model` no depende de `network`: los DTO que llegan del servidor viven en `model.dto`, así los handlers de red los convierten y el modelo los aplica sin conocer el socket.
+
+### Validaciones del lado del cliente
+
+Para no cargar todo al servidor, el cliente no envía mensajes que se sabe que van a fallar. El servidor vuelve a validar todo, porque es la autoridad.
+
+|Acción|Validación local|Dónde|
+|-|-|-|
+|Crear / unirse|Apodo entre 3 y 16 caracteres; código con `MATCH\_CODE\_REGEX`|LobbyController|
+|Elegir especie|Solo especies disponibles (botón deshabilitado si ya la tomó el rival)|AnimalSelectionPanel|
+|Mover|Hay animales seleccionados y el clic cae sobre un camino|GameController + PathSegment|
+|Atacar|Hay animales seleccionados y el objetivo no es propio|GameController|
+|Cambiar zona|Solo zonas visibles (botones deshabilitados)|GameController + HudPanel|
+|Animación|Interpolación entre snapshots a 30 FPS sin pedir nada al servidor|GamePanel|
+
 ### Package: constants
 
 ```mermaid
 classDiagram
     class IConstants {
         <<interface>>
-        +String SERVER_HOST$
-        +int SERVER_PORT$
-        +int MATCH_CODE_LENGTH$
-        +String MATCH_CODE_REGEX$
-        +int NICKNAME_MIN_LENGTH$
-        +int NICKNAME_MAX_LENGTH$
-        +int ZONE_COUNT$
-        +int SPECIES_COUNT$
-        +int MAX_PLAYER_ENERGY$
-        +int TARGET_FPS$
-        +int FRAME_DELAY_MS$
-        +int WINDOW_WIDTH$
-        +int WINDOW_HEIGHT$
-        +int SPRITE_SIZE$
-        +int ENERGY_BAR_HEIGHT$
-        +int CLICK_TOLERANCE$
-        +String ASSETS_PATH$
-        +Color PLAYER_COLOR$
-        +Color OPPONENT_COLOR$
-        +Color BOT_COLOR$
-        +Color SELECTION_COLOR$
+        +String SERVER\_HOST$
+        +int SERVER\_PORT$
+        +int MATCH\_CODE\_LENGTH$
+        +String MATCH\_CODE\_REGEX$
+        +int NICKNAME\_MIN\_LENGTH$
+        +int NICKNAME\_MAX\_LENGTH$
+        +int ZONE\_COUNT$
+        +int ZONE\_WIDTH$
+        +int ZONE\_HEIGHT$
+        +int SPECIES\_COUNT$
+        +int MAX\_PLAYER\_ENERGY$
+        +long TICK\_MS$
+        +int TARGET\_FPS$
+        +int FRAME\_DELAY\_MS$
+        +int WINDOW\_WIDTH$
+        +int WINDOW\_HEIGHT$
+        +int HUD\_HEIGHT$
+        +int SPRITE\_SIZE$
+        +int ENERGY\_BAR\_HEIGHT$
+        +int CLICK\_TOLERANCE$
+        +String ASSETS\_PATH$
+        +Color PLAYER\_COLOR$
+        +Color OPPONENT\_COLOR$
+        +Color BOT\_COLOR$
+        +Color SELECTION\_COLOR$
     }
 ```
 
 ```java
 public interface IConstants
 
-+static final String SERVER_HOST = "localhost" // host del servidor
-+static final int SERVER_PORT = por definir // puerto del servidor
-+static final int MATCH_CODE_LENGTH = 4 // largo del código de partida
-+static final String MATCH_CODE_REGEX = "[A-Za-z0-9]{4}" // validación local del código
-+static final int NICKNAME_MIN_LENGTH = por definir // largo mínimo del apodo
-+static final int NICKNAME_MAX_LENGTH = por definir // largo máximo del apodo
-+static final int ZONE_COUNT = 12 // zonas del mapa
-+static final int SPECIES_COUNT = 7 // especies disponibles
-+static final int MAX_PLAYER_ENERGY = 20 // energía máxima de un animal del jugador
-+static final int TARGET_FPS = 30 // cuadros por segundo del render
-+static final int FRAME_DELAY_MS = 1000 / TARGET_FPS // delay del Timer de Swing
-+static final int WINDOW_WIDTH // ancho de la ventana
-+static final int WINDOW_HEIGHT // alto de la ventana
-+static final int SPRITE_SIZE // tamaño de un animal en pantalla
-+static final int ENERGY_BAR_HEIGHT // alto de la barra de energía
-+static final int CLICK_TOLERANCE // radio en píxeles para detectar un clic sobre un animal
-+static final String ASSETS_PATH = "/assets/svg/" // carpeta de los SVG
-+static final Color PLAYER_COLOR // color del pack del jugador
-+static final Color OPPONENT_COLOR // color del pack del oponente
-+static final Color BOT_COLOR // color de los packs bot
-+static final Color SELECTION_COLOR // color del resaltado de selección
++static final String SERVER\_HOST = "localhost" // host del servidor
++static final int SERVER\_PORT = 5050 // igual que el servidor
++static final int MATCH\_CODE\_LENGTH = 4 // largo del código de partida
++static final String MATCH\_CODE\_REGEX = "\[A-Za-z0-9]{4}" // validación local del código
++static final int NICKNAME\_MIN\_LENGTH = 3 // igual que el servidor
++static final int NICKNAME\_MAX\_LENGTH = 16 // igual que el servidor
++static final int ZONE\_COUNT = 12 // zonas del mapa
++static final int ZONE\_WIDTH = 800 // ancho de una zona en unidades del servidor
++static final int ZONE\_HEIGHT = 600 // alto de una zona en unidades del servidor
++static final int SPECIES\_COUNT = 7 // especies disponibles
++static final int MAX\_PLAYER\_ENERGY = 20 // energía máxima de un animal del jugador
++static final long TICK\_MS = 100 // cada cuánto llega un STATE\_UPDATE (para interpolar)
++static final int TARGET\_FPS = 30 // cuadros por segundo del render
++static final int FRAME\_DELAY\_MS = 1000 / TARGET\_FPS // delay del Timer de Swing
++static final int WINDOW\_WIDTH = 1024 // ancho de la ventana
++static final int WINDOW\_HEIGHT = 768 // alto de la ventana
++static final int HUD\_HEIGHT = 60 // alto de la barra superior del juego
++static final int SPRITE\_SIZE = 32 // tamaño de un animal en pantalla
++static final int ENERGY\_BAR\_HEIGHT = 4 // alto de la barra de energía
++static final int CLICK\_TOLERANCE = 20 // radio en píxeles para detectar un clic sobre un animal o un camino
++static final String ASSETS\_PATH = "/assets/svg/" // carpeta de los SVG
++static final Color PLAYER\_COLOR = new Color(46, 160, 67) // verde
++static final Color OPPONENT\_COLOR = new Color(214, 48, 49) // rojo
++static final Color BOT\_COLOR = new Color(120, 120, 120) // gris
++static final Color SELECTION\_COLOR = new Color(255, 214, 0) // amarillo
 ```
 
 ### Package: model
@@ -91,11 +116,11 @@ classDiagram
         <<enumeration>>
         JAGUAR
         SLOTH
-        MACAW
-        MONKEY
+        SCARLET\_MACAW
+        WHITE\_FACED\_MONKEY
         TOUCAN
-        FROG
-        PIZOTE
+        RED\_EYED\_TREE\_FROG
+        COATI
         -String displayName
         -String svgFile
         +getDisplayName() String
@@ -111,17 +136,26 @@ classDiagram
     class GamePhase {
         <<enumeration>>
         LOBBY
-        WAITING_OPPONENT
-        SELECTING_ANIMAL
+        WAITING\_OPPONENT
+        SELECTING\_ANIMAL
         PLAYING
-        GAME_OVER
+        GAME\_OVER
     }
     class EventType {
         <<enumeration>>
         ATTACK
-        ANIMAL_DIED
-        CUP_COLLECTED
-        BOT_KILLED
+        ANIMAL\_DIED
+        CUP\_COLLECTED
+        BOT\_KILLED
+    }
+    class ModelChange {
+        <<enumeration>>
+        PHASE\_CHANGED
+        SPECIES\_UPDATED
+        STATE\_UPDATED
+        ZONE\_CHANGED
+        SELECTION\_CHANGED
+        ERROR
     }
     class Entity {
         <<abstract>>
@@ -132,11 +166,12 @@ classDiagram
         +getX() double
         +getY() double
         +setPosition(double x, double y) void
-        +getSvgName()* String
+        +getSvgName()\* String
     }
     class Animal {
         -AnimalSpecies species
         -int packId
+        -PackType packType
         -int energy
         -boolean alive
         -boolean selected
@@ -144,8 +179,9 @@ classDiagram
         -double prevY
         +getRenderX(double alpha) double
         +getRenderY(double alpha) double
-        +applyState(int energy, double x, double y) void
+        +applyState(int energy, double x, double y, boolean alive) void
         +isAlive() boolean
+        +isOwn() boolean
         +isSelected() boolean
         +setSelected(boolean selected) void
         +getSvgName() String
@@ -162,28 +198,30 @@ classDiagram
         -AnimalSpecies species
         -PackType type
         -int damageCapacity
-        -List~Animal~ members
-        +getLivingMembers() List~Animal~
+        -List\~Animal\~ members
+        +getLivingMembers() List\~Animal\~
         +countAlive() int
     }
     class Zone {
         -int id
-        -List~Integer~ neighborIds
-        -List~PathSegment~ paths
+        -List\~Integer\~ neighborIds
+        -List\~PathSegment\~ paths
         -boolean visible
-        -List~Entity~ entities
+        -List\~Entity\~ entities
         +isVisible() boolean
-        +getEntities() List~Entity~
+        +getEntities() List\~Entity\~
+        +isOnPath(double x, double y, double tolerance) boolean
     }
     class PathSegment {
         -double x1, y1
         -double x2, y2
-        +contains(double x, double y) boolean
+        +contains(double x, double y, double tolerance) boolean
     }
     class MatchSummary {
         -String winnerNickname
+        -String reason
         -int botsEliminated
-        -Map~Integer,Integer~ animalsEliminatedByPack
+        -Map\~Integer,Integer\~ animalsEliminatedByPack
         -int playerCups
         -int opponentCups
         -long durationMs
@@ -194,30 +232,50 @@ classDiagram
         -int targetId
         +getType() EventType
     }
+    class Payloads {
+        <<final>>
+    }
+    note for Payloads "model.dto: copia exacta de los records del servidor"
     class IGameObserver {
         <<interface>>
-        +onModelChanged(GameEvent event) void
+        +onModelChanged(ModelChange change) void
     }
     class GameModel {
         -GamePhase phase
         -String nickname
+        -String opponentNickname
         -String matchCode
+        -AnimalSpecies species
+        -List\~AnimalSpecies\~ availableSpecies
+        -AnimalSpecies opponentChoice
         -int currentZoneId
-        -Map~Integer,Zone~ zones
-        -List~Pack~ packs
-        -List~Animal~ selectedAnimals
+        -Map\~Integer,Zone\~ zones
+        -List\~Pack\~ packs
+        -List\~Animal\~ selectedAnimals
+        -int damageCapacity
         -int botsKilled
         -int cupsConsumed
+        -List\~GameEvent\~ lastEvents
+        -String lastError
+        -long lastSnapshotNanos
         -MatchSummary summary
-        -List~IGameObserver~ observers
+        -List\~IGameObserver\~ observers
         +addObserver(IGameObserver o) void
         +removeObserver(IGameObserver o) void
-        -notifyObservers(GameEvent event) void
-        +applySnapshot(StateSnapshot snapshot) void
+        -notifyObservers(ModelChange change) void
+        +applyGameStarted(GameStarted data) void
+        +applySnapshot(StateUpdate snapshot, long nowNanos) void
+        +applySummary(Summary data) void
+        +setAvailableSpecies(List\~AnimalSpecies\~ available, AnimalSpecies opponentChoice) void
         +setPhase(GamePhase phase) void
         +setCurrentZone(int zoneId) void
+        +isZoneVisible(int zoneId) boolean
         +getCurrentZone() Zone
-        +getSelectedAnimals() List~Animal~
+        +getSelectedAnimals() List\~Animal\~
+        +getLastEvents() List\~GameEvent\~
+        +getInterpolationAlpha(long nowNanos) double
+        +setError(String message) void
+        +reset() void
     }
     note for GameModel "Subject del patrón Observer"
 
@@ -225,24 +283,32 @@ classDiagram
     Entity <|-- CoffeeCup
     Entity <|-- Flag
     Animal --> AnimalSpecies
+    Animal --> PackType
     Flag --> PackType
     Pack --> AnimalSpecies
     Pack --> PackType
-    Pack "1" *-- "many" Animal : members
-    Zone "1" *-- "many" PathSegment : paths
+    Pack "1" \*-- "many" Animal : members
+    Zone "1" \*-- "many" PathSegment : paths
     Zone "1" o-- "many" Entity : entities
     GameEvent --> EventType
     GameModel --> GamePhase
-    GameModel "1" *-- "12" Zone : zones
+    GameModel "1" \*-- "12" Zone : zones
     GameModel "1" o-- "many" Pack : packs
     GameModel --> MatchSummary
     GameModel "1" o-- "many" IGameObserver : observers
-    IGameObserver ..> GameEvent
+    GameModel ..> Payloads : aplica
+    IGameObserver ..> ModelChange
 ```
 
 ```java
-enum AnimalSpecies
-JAGUAR, SLOTH, MACAW, MONKEY, TOUCAN, FROG, PIZOTE // las 7 especies nativas de Costa Rica
+enum AnimalSpecies  // mismos nombres que el servidor, para que fromName funcione con el JSON
+JAGUAR("Jaguar", "jaguar.svg")
+SLOTH("Perezoso", "sloth.svg")
+SCARLET\_MACAW("Lapa roja", "scarlet\_macaw.svg")
+WHITE\_FACED\_MONKEY("Mono cariblanco", "white\_faced\_monkey.svg")
+TOUCAN("Tucán", "toucan.svg")
+RED\_EYED\_TREE\_FROG("Rana calzonuda", "red\_eyed\_tree\_frog.svg")
+COATI("Pizote", "coati.svg")
 -String displayName // nombre para mostrar
 -String svgFile // nombre del archivo SVG del animal
 +String getDisplayName()
@@ -253,12 +319,15 @@ enum PackType
 PLAYER, OPPONENT, BOT // quién controla el pack, define el color y las acciones permitidas
 
 enum GamePhase
-LOBBY, WAITING_OPPONENT, SELECTING_ANIMAL, PLAYING, GAME_OVER // fase actual del cliente
+LOBBY, WAITING\_OPPONENT, SELECTING\_ANIMAL, PLAYING, GAME\_OVER // fase actual del cliente
+
+enum ModelChange
+PHASE\_CHANGED, SPECIES\_UPDATED, STATE\_UPDATED, ZONE\_CHANGED, SELECTION\_CHANGED, ERROR // qué cambió en el modelo
 
 abstract class Entity
 #int id // id asignado por el servidor
-#double x // coordenada horizontal en el mapa
-#double y // coordenada vertical en el mapa
+#double x // coordenada horizontal local a la zona (0 a ZONE\_WIDTH)
+#double y // coordenada vertical local a la zona (0 a ZONE\_HEIGHT)
 +int getId()
 +double getX()
 +double getY()
@@ -268,15 +337,17 @@ abstract class Entity
 class Animal extends Entity
 -AnimalSpecies species // especie
 -int packId // pack al que pertenece
+-PackType packType // PLAYER, OPPONENT o BOT
 -int energy // energía actual
 -boolean alive // está vivo
 -boolean selected // seleccionado por el jugador (solo local)
 -double prevX // posición del snapshot anterior (para interpolar)
 -double prevY
-+double getRenderX(double alpha) // posición interpolada para dibujar
++double getRenderX(double alpha) // prevX + (x - prevX) \* alpha
 +double getRenderY(double alpha)
-+void applyState(int energy, double x, double y) // actualiza con el snapshot nuevo
++void applyState(int energy, double x, double y, boolean alive) // guarda la posición actual en prev y aplica la nueva
 +boolean isAlive()
++boolean isOwn() // packType == PLAYER
 +boolean isSelected()
 +void setSelected(boolean selected)
 +String getSvgName() // sobrescribe: devuelve el SVG de su especie
@@ -300,19 +371,21 @@ class Pack
 class Zone
 -int id // 0 a 11
 -List<Integer> neighborIds // zonas conectadas por camino
--List<PathSegment> paths // caminos transitables dentro de la zona
+-List<PathSegment> paths // caminos transitables dentro de la zona (vienen en GAME\_STARTED)
 -boolean visible // true si el jugador tiene un animal vivo ahí
 -List<Entity> entities // lo visible en la zona (animales, tazas, bandera)
 +boolean isVisible()
 +List<Entity> getEntities()
++boolean isOnPath(double x, double y, double tolerance) // algún PathSegment contiene el punto
 
 class PathSegment
 -double x1, y1 // punto inicial
 -double x2, y2 // punto final
-+boolean contains(double x, double y) // si un punto cae sobre el camino (valida clics de destino)
++boolean contains(double x, double y, double tolerance) // distancia del punto al segmento ≤ tolerance (valida clics de destino)
 
 class MatchSummary
--String winnerNickname // ganador
+-String winnerNickname // ganador (null si hay empate)
+-String reason // FLAG\_TOUCHED, ALL\_DEAD u OPPONENT\_LEFT
 -int botsEliminated // bots eliminados
 -Map<Integer, Integer> animalsEliminatedByPack // bajas por pack
 -int playerCups // tazas consumidas por el jugador
@@ -320,34 +393,54 @@ class MatchSummary
 -long durationMs // duración del match
 
 class GameEvent
--EventType type // ATTACK, ANIMAL_DIED, CUP_COLLECTED, BOT_KILLED
+-EventType type // ATTACK, ANIMAL\_DIED, CUP\_COLLECTED, BOT\_KILLED
 -int sourceId // quién genera el evento
 -int targetId // a quién afecta
 +EventType getType() // sirve para disparar animaciones y sonidos
 
+final class model.dto.Payloads
+// Copia exacta de los records del servidor (ver README del servidor, Package: protocol):
+// AnimalState, CupState, FlagState, EventState, ZoneInfo, StateUpdate, GameStarted, Summary
+
 interface IGameObserver
-+void onModelChanged(GameEvent event) // se llama cada vez que el sujeto notifica un cambio
++void onModelChanged(ModelChange change) // se llama cada vez que el sujeto notifica un cambio
 
 class GameModel  (Subject del Observer)
 -GamePhase phase // fase actual
 -String nickname // apodo del jugador
+-String opponentNickname // apodo del rival
 -String matchCode // código de la partida
+-AnimalSpecies species // especie propia
+-List<AnimalSpecies> availableSpecies // especies que aún se pueden elegir
+-AnimalSpecies opponentChoice // especie del rival (null si no ha elegido)
 -int currentZoneId // zona que se está viendo
 -Map<Integer, Zone> zones // las 12 zonas
 -List<Pack> packs // packs conocidos
 -List<Animal> selectedAnimals // selección actual del jugador
+-int damageCapacity // daño actual del pack propio
 -int botsKilled // contador de bots eliminados
 -int cupsConsumed // tazas consumidas
+-List<GameEvent> lastEvents // eventos del último snapshot
+-String lastError // último mensaje de error del servidor
+-long lastSnapshotNanos // cuándo llegó el último STATE\_UPDATE (System.nanoTime)
 -MatchSummary summary // resumen al terminar
 -List<IGameObserver> observers // vistas suscritas
 +void addObserver(IGameObserver o)
 +void removeObserver(IGameObserver o)
--void notifyObservers(GameEvent event) // avisa a todas las vistas
-+void applySnapshot(StateSnapshot snapshot) // actualiza el modelo con un STATE_UPDATE
-+void setPhase(GamePhase phase)
-+void setCurrentZone(int zoneId) // solo permite zonas donde hay animales vivos
+-void notifyObservers(ModelChange change) // avisa a todas las vistas
++void applyGameStarted(Payloads.GameStarted data) // arma las 12 zonas, guarda el rival y aplica el estado inicial; pasa a PLAYING
++void applySnapshot(Payloads.StateUpdate snapshot, long nowNanos) // actualiza la zona actual, zonas visibles, contadores y eventos → STATE\_UPDATED
++void applySummary(Payloads.Summary data) // guarda el MatchSummary y pasa a GAME\_OVER
++void setAvailableSpecies(List<AnimalSpecies> available, AnimalSpecies opponentChoice) // → SPECIES\_UPDATED
++void setPhase(GamePhase phase) // → PHASE\_CHANGED
++void setCurrentZone(int zoneId) // solo permite zonas visibles → ZONE\_CHANGED
++boolean isZoneVisible(int zoneId)
 +Zone getCurrentZone()
 +List<Animal> getSelectedAnimals()
++List<GameEvent> getLastEvents()
++double getInterpolationAlpha(long nowNanos) // min(1, (nowNanos - lastSnapshotNanos) / (TICK\_MS \* 1\_000\_000))
++void setError(String message) // → ERROR
++void reset() // limpia todo para volver al lobby
 ```
 
 ### Package: network
@@ -358,41 +451,32 @@ class GameModel  (Subject del Observer)
 classDiagram
     class MessageType {
         <<enumeration>>
-        CREATE_MATCH
-        JOIN_MATCH
-        SELECT_ANIMAL
-        MOVE_ANIMALS
+        CREATE\_MATCH
+        JOIN\_MATCH
+        SELECT\_ANIMAL
+        MOVE\_ANIMALS
         ATTACK
-        VIEW_ZONE
-        MATCH_CREATED
-        MATCH_JOINED
+        VIEW\_ZONE
+        MATCH\_CREATED
+        MATCH\_JOINED
         ERROR
-        ANIMAL_SELECTION
-        GAME_STARTED
-        STATE_UPDATE
-        GAME_OVER
+        ANIMAL\_SELECTION
+        GAME\_STARTED
+        STATE\_UPDATE
+        GAME\_OVER
     }
     class Message {
         -MessageType type
         -JsonObject payload
         +getType() MessageType
         +getPayload() JsonObject
-        +create(MessageType type, Map~String,Object~ fields)$ Message
+        +create(MessageType type, Map\~String,Object\~ fields)$ Message
     }
     class MessageSerializer {
         -Gson GSON$
         +toJson(Message message)$ String
         +fromJson(String line)$ Message
-        +payloadAs(Message m, Class~T~ type)$ T
-    }
-    class StateSnapshot {
-        <<DTO>>
-        -long serverTime
-        -int zoneId
-        -List~AnimalState~ animals
-        -List~CupState~ cups
-        -int playerDamageCapacity
-        -List~GameEvent~ events
+        +payloadAs(Message m, Class\~T\~ type)$ T
     }
     class ServerConnection {
         <<Singleton>>
@@ -423,7 +507,7 @@ classDiagram
         +handle(Message message) void
     }
     class MessageDispatcher {
-        -Map~MessageType,IMessageHandler~ handlers
+        -Map\~MessageType,IMessageHandler\~ handlers
         -GameModel model
         +register(MessageType type, IMessageHandler handler) void
         +dispatch(Message message) void
@@ -439,8 +523,8 @@ classDiagram
 
     Message --> MessageType
     MessageSerializer ..> Message
-    MessageSerializer ..> StateSnapshot
-    ServerConnection *-- MessageReceiver
+    MessageSerializer ..> Payloads : payloadAs
+    ServerConnection \*-- MessageReceiver
     ServerConnection ..> Message : send
     Runnable <|.. MessageReceiver
     MessageReceiver --> MessageDispatcher
@@ -453,13 +537,12 @@ classDiagram
     IMessageHandler <|.. StateUpdateHandler
     IMessageHandler <|.. GameOverHandler
     IMessageHandler <|.. ErrorHandler
-    StateUpdateHandler ..> StateSnapshot
 ```
 
 ```java
 enum MessageType
-CREATE_MATCH, JOIN_MATCH, SELECT_ANIMAL, MOVE_ANIMALS, ATTACK, VIEW_ZONE // cliente  -> servidor
-MATCH_CREATED, MATCH_JOINED, ERROR, ANIMAL_SELECTION, GAME_STARTED, STATE_UPDATE, GAME_OVER // servidor -> cliente
+CREATE\_MATCH, JOIN\_MATCH, SELECT\_ANIMAL, MOVE\_ANIMALS, ATTACK, VIEW\_ZONE // cliente  -> servidor
+MATCH\_CREATED, MATCH\_JOINED, ERROR, ANIMAL\_SELECTION, GAME\_STARTED, STATE\_UPDATE, GAME\_OVER // servidor -> cliente
 
 class Message
 -MessageType type // tipo del mensaje
@@ -472,15 +555,7 @@ class MessageSerializer
 -static final Gson GSON // instancia única de Gson
 +static String toJson(Message message) // objeto → una línea JSON
 +static Message fromJson(String line) // una línea JSON → objeto
-+static <T> T payloadAs(Message m, Class<T> type) // convierte el payload a un DTO
-
-class StateSnapshot  (DTO del STATE_UPDATE)
--long serverTime // marca de tiempo del servidor
--int zoneId // zona a la que corresponde
--List<AnimalState> animals // posición, energía y vida de cada animal visible
--List<CupState> cups // tazas visibles
--int playerDamageCapacity // daño actual del pack del jugador
--List<GameEvent> events // eventos desde el snapshot anterior
++static <T> T payloadAs(Message m, Class<T> type) // convierte el payload a un record de model.dto.Payloads
 
 class ServerConnection  (Singleton, holder idiom)
 -static class Holder // clase interna que guarda INSTANCE
@@ -498,7 +573,7 @@ class MessageReceiver implements Runnable
 -BufferedReader reader
 -MessageDispatcher dispatcher
 -volatile boolean running
-+void run() // lee línea por línea y delega al dispatcher
++void run() // lee línea por línea, fromJson y delega al dispatcher; si se pierde la conexión → model.setError(...)
 +void stop()
 
 interface IMessageHandler
@@ -510,14 +585,14 @@ class MessageDispatcher
 +void register(MessageType type, IMessageHandler handler)
 +void dispatch(Message message) // busca el manejador y lo ejecuta con SwingUtilities.invokeLater
 
-// Manejadores (todos implements IMessageHandler)
-class MatchCreatedHandler // guarda el código y pasa a WAITING_OPPONENT
-class MatchJoinedHandler // pasa a SELECTING_ANIMAL
-class AnimalSelectionHandler // actualiza especies disponibles y la elección del oponente
-class GameStartedHandler // carga mapa, zona propia y pack inicial; pasa a PLAYING
-class StateUpdateHandler // llama a model.applySnapshot(...)
-class GameOverHandler // guarda el MatchSummary y pasa a GAME_OVER
-class ErrorHandler // código inválido, partida llena, especie ya tomada: notifica a la vista
+// Manejadores (todos implements IMessageHandler, reciben el GameModel en el constructor)
+class MatchCreatedHandler // guarda el código y pasa a WAITING\_OPPONENT
+class MatchJoinedHandler // guarda el apodo del rival y pasa a SELECTING\_ANIMAL
+class AnimalSelectionHandler // model.setAvailableSpecies(available, opponentChoice)
+class GameStartedHandler // model.applyGameStarted(payloadAs(m, Payloads.GameStarted.class))
+class StateUpdateHandler // model.applySnapshot(payloadAs(m, Payloads.StateUpdate.class), System.nanoTime())
+class GameOverHandler // model.applySummary(payloadAs(m, Payloads.Summary.class))
+class ErrorHandler // model.setError(message): código inválido, partida llena, especie ya tomada, etc.
 ```
 
 ### Package: controller
@@ -531,7 +606,8 @@ classDiagram
         +selectAt(double x, double y, boolean addToSelection) void
         +selectInRectangle(Rectangle2D area) void
         +clearSelection() void
-        +getSelectedIds() List~Integer~
+        +pruneSelection() void
+        +getSelectedIds() List\~Integer\~
         +findAnimalAt(double x, double y) Animal
     }
     class GameController {
@@ -543,10 +619,12 @@ classDiagram
         +onZoneChangeRequested(int zoneId) void
     }
     class LobbyController {
+        -GameModel model
         -ServerConnection connection
         +createMatch(String nickname) void
         +joinMatch(String nickname, String code) void
         +selectAnimal(AnimalSpecies species) void
+        +backToLobby() void
         -isValidNickname(String nickname) boolean
         -isValidCode(String code) boolean
     }
@@ -558,6 +636,7 @@ classDiagram
         -SelectionManager selectionManager
         -Point dragStart
         +mousePressed(MouseEvent e) void
+        +mouseDragged(MouseEvent e) void
         +mouseReleased(MouseEvent e) void
         +mouseClicked(MouseEvent e) void
     }
@@ -568,6 +647,7 @@ classDiagram
     GameController --> SelectionManager
     GameController --> GameModel
     GameController --> ServerConnection
+    LobbyController --> GameModel
     LobbyController --> ServerConnection
     SelectionManager --> GameModel
 ```
@@ -575,26 +655,29 @@ classDiagram
 ```java
 class SelectionManager
 -GameModel model
-+void selectAt(double x, double y, boolean addToSelection) // clic simple sobre un animal propio
-+void selectInRectangle(Rectangle2D area) // selección por arrastre
++void selectAt(double x, double y, boolean addToSelection) // clic simple sobre un animal propio (con Shift agrega a la selección)
++void selectInRectangle(Rectangle2D area) // selección por arrastre, solo animales propios y vivos
 +void clearSelection()
++void pruneSelection() // quita de la selección los muertos o los que ya no están en la zona actual (se llama en cada STATE\_UPDATE)
 +List<Integer> getSelectedIds()
-+Animal findAnimalAt(double x, double y) // usa CLICK_TOLERANCE
++Animal findAnimalAt(double x, double y) // usa CLICK\_TOLERANCE
 
 class GameController
 -GameModel model
 -ServerConnection connection
 -SelectionManager selectionManager
-+void onMoveRequested(double x, double y) // valida que el destino esté sobre un camino y envía MOVE_ANIMALS
-+void onAttackRequested(int targetId) // envía ATTACK solo si el objetivo no es del propio jugador
-+void onZoneChangeRequested(int zoneId) // envía VIEW_ZONE
++void onMoveRequested(double x, double y) // si hay selección y zone.isOnPath(x, y, CLICK\_TOLERANCE) → MOVE\_ANIMALS { animalIds, zoneId, x, y }
++void onAttackRequested(int targetId) // si hay selección y el objetivo no es propio → ATTACK { animalIds, targetId }
++void onZoneChangeRequested(int zoneId) // si model.isZoneVisible(zoneId) → VIEW\_ZONE { zoneId } y model.setCurrentZone
 
 class LobbyController
+-GameModel model
 -ServerConnection connection
-+void createMatch(String nickname) // valida el apodo y envía CREATE_MATCH
-+void joinMatch(String nickname, String code) // valida el código con MATCH_CODE_REGEX y envía JOIN_MATCH
-+void selectAnimal(AnimalSpecies species) // envía SELECT_ANIMAL
--boolean isValidNickname(String nickname)
++void createMatch(String nickname) // valida el apodo y envía CREATE\_MATCH; si es inválido → model.setError
++void joinMatch(String nickname, String code) // valida el código con MATCH\_CODE\_REGEX y envía JOIN\_MATCH
++void selectAnimal(AnimalSpecies species) // envía SELECT\_ANIMAL
++void backToLobby() // model.reset() y setPhase(LOBBY)
+-boolean isValidNickname(String nickname) // largo entre NICKNAME\_MIN\_LENGTH y NICKNAME\_MAX\_LENGTH
 -boolean isValidCode(String code)
 
 class InputHandler extends MouseAdapter
@@ -602,8 +685,10 @@ class InputHandler extends MouseAdapter
 -SelectionManager selectionManager
 -Point dragStart // inicio de la selección por arrastre
 +void mousePressed(MouseEvent e) // clic izquierdo: inicia selección
++void mouseDragged(MouseEvent e) // actualiza el rectángulo que dibuja SelectionBoxRenderer
 +void mouseReleased(MouseEvent e) // clic izquierdo: termina el rectángulo de selección
-+void mouseClicked(MouseEvent e) // clic derecho en camino: mover; clic derecho sobre enemigo/bot: atacar
++void mouseClicked(MouseEvent e) // clic derecho sobre enemigo/bot: atacar; clic derecho en camino: mover
+// todas las coordenadas pasan por CoordinateMapper antes de llegar al controlador
 ```
 
 ### Package: view
@@ -620,7 +705,7 @@ classDiagram
     }
     class SvgCache {
         <<Singleton>>
-        -Map~String,BufferedImage~ cache
+        -Map\~String,BufferedImage\~ cache
         +getInstance()$ SvgCache
         +preload() void
         +get(String svgName, int size) BufferedImage
@@ -637,7 +722,7 @@ classDiagram
     class SelectionBoxRenderer
     class IGameObserver {
         <<interface>>
-        +onModelChanged(GameEvent event) void
+        +onModelChanged(ModelChange change) void
     }
     class JFrame {
         <<Swing>>
@@ -649,11 +734,13 @@ classDiagram
         -CardLayout layout
         -LobbyPanel lobbyPanel
         -AnimalSelectionPanel selectionPanel
+        -JPanel gameScreen
         -GamePanel gamePanel
+        -HudPanel hudPanel
         -SummaryPanel summaryPanel
         -configureWindow() void
         -showCard(GamePhase phase) void
-        +onModelChanged(GameEvent event) void
+        +onModelChanged(ModelChange change) void
     }
     class LobbyPanel {
         +JTextField txtNickname
@@ -664,23 +751,22 @@ classDiagram
         +JLabel lblError
     }
     class AnimalSelectionPanel {
-        -List~JButton~ speciesButtons
-        +updateAvailable(List~AnimalSpecies~ available, AnimalSpecies opponentChoice) void
+        -List\~JButton\~ speciesButtons
+        +updateAvailable(List\~AnimalSpecies\~ available, AnimalSpecies opponentChoice) void
     }
     class GamePanel {
         -GameModel model
         -Timer animationTimer
-        -List~IDrawable~ drawables
-        -double interpolationAlpha
+        -List\~IDrawable\~ drawables
         #paintComponent(Graphics g) void
         -buildDrawables() void
-        +onModelChanged(GameEvent event) void
+        +onModelChanged(ModelChange change) void
     }
     class HudPanel {
         -JLabel lblBotsKilled
         -JLabel lblCups
         -JLabel lblDamage
-        -List~JButton~ zoneButtons
+        -List\~JButton\~ zoneButtons
         +refresh(GameModel model) void
     }
     class SummaryPanel {
@@ -706,10 +792,11 @@ classDiagram
     IGameObserver <|.. MainWindow
     IGameObserver <|.. GamePanel
 
-    MainWindow *-- LobbyPanel
-    MainWindow *-- AnimalSelectionPanel
-    MainWindow *-- GamePanel
-    MainWindow *-- SummaryPanel
+    MainWindow \*-- LobbyPanel
+    MainWindow \*-- AnimalSelectionPanel
+    MainWindow \*-- GamePanel
+    MainWindow \*-- HudPanel
+    MainWindow \*-- SummaryPanel
     GamePanel "1" o-- "many" IDrawable : drawables
     GamePanel ..> CoordinateMapper
     HudPanel ..> GameModel
@@ -717,10 +804,11 @@ classDiagram
 
 ```java
 class CoordinateMapper
-+static double toWorldX(int screenX, int panelWidth) // pantalla → coordenadas del mapa
-+static double toWorldY(int screenY, int panelHeight)
-+static int toScreenX(double worldX, int panelWidth) // mapa → pantalla
-+static int toScreenY(double worldY, int panelHeight)
+// el servidor manda coordenadas locales a la zona (0..ZONE\_WIDTH, 0..ZONE\_HEIGHT); se escalan al tamaño del panel
++static double toWorldX(int screenX, int panelWidth) // screenX \* ZONE\_WIDTH / panelWidth
++static double toWorldY(int screenY, int panelHeight) // screenY \* ZONE\_HEIGHT / panelHeight
++static int toScreenX(double worldX, int panelWidth) // worldX \* panelWidth / ZONE\_WIDTH
++static int toScreenY(double worldY, int panelHeight) // worldY \* panelHeight / ZONE\_HEIGHT
 
 class SvgCache  (Singleton)
 -static class Holder // holder idiom: la JVM crea la instancia una sola vez y de forma segura entre hilos
@@ -733,7 +821,7 @@ interface IDrawable
 +void draw(Graphics2D g, double alpha) // cada elemento sabe dibujarse (polimorfismo)
 
 // Dibujables (todos implements IDrawable)
-class AnimalSprite // imagen SVG +barra de energía +resaltado si está seleccionado +color del pack
+class AnimalSprite // imagen SVG + barra de energía + resaltado si está seleccionado + color del pack
 class CupSprite // taza de café sobre el camino
 class FlagSprite // bandera con el color de su dueño
 class PathRenderer // dibuja los caminos de la zona
@@ -743,11 +831,13 @@ class MainWindow extends JFrame implements IGameObserver
 -CardLayout layout // alterna entre pantallas
 -LobbyPanel lobbyPanel
 -AnimalSelectionPanel selectionPanel
+-JPanel gameScreen // tarjeta PLAYING: HudPanel arriba (BorderLayout.NORTH) y GamePanel al centro
 -GamePanel gamePanel
+-HudPanel hudPanel
 -SummaryPanel summaryPanel
--void configureWindow() // tamaño, título, cierre
+-void configureWindow() // WINDOW\_WIDTH x WINDOW\_HEIGHT, título, cierre (cierra la conexión)
 -void showCard(GamePhase phase) // muestra la pantalla según la fase
-+void onModelChanged(GameEvent event) // cambia de pantalla o repinta
++void onModelChanged(ModelChange change) // PHASE\_CHANGED → showCard; SPECIES\_UPDATED → selectionPanel; ERROR → lblError; STATE\_UPDATED → hudPanel.refresh
 
 class LobbyPanel extends JPanel
 +JTextField txtNickname // apodo
@@ -755,7 +845,7 @@ class LobbyPanel extends JPanel
 +JButton btnCreate // crear partida
 +JButton btnJoin // unirse a partida
 +JLabel lblCode // muestra el código generado mientras espera al oponente
-+JLabel lblError // errores del servidor
++JLabel lblError // errores del servidor o de validación local
 
 class AnimalSelectionPanel extends JPanel
 -List<JButton> speciesButtons // un botón con imagen por especie
@@ -763,23 +853,22 @@ class AnimalSelectionPanel extends JPanel
 
 class GamePanel extends JPanel implements IGameObserver
 -GameModel model
--javax.swing.Timer animationTimer // repinta a TARGET_FPS
+-javax.swing.Timer animationTimer // cada FRAME\_DELAY\_MS: repaint()
 -List<IDrawable> drawables // lo que se dibuja en el cuadro actual
--double interpolationAlpha // avance entre el snapshot anterior y el actual
-#void paintComponent(Graphics g) // pinta fondo, caminos, cups, bandera, animales, selección
+#void paintComponent(Graphics g) // alpha = model.getInterpolationAlpha(System.nanoTime()); pinta fondo, caminos, tazas, bandera, animales, selección
 -void buildDrawables() // arma la lista a partir de la zona actual del modelo
-+void onModelChanged(GameEvent event) // dispara animación según el evento
++void onModelChanged(ModelChange change) // STATE\_UPDATED o ZONE\_CHANGED → buildDrawables; dispara animaciones según model.getLastEvents()
 
 class HudPanel extends JPanel
 -JLabel lblBotsKilled // bots eliminados
 -JLabel lblCups // tazas consumidas
 -JLabel lblDamage // capacidad de daño del pack
--List<JButton> zoneButtons // cambiar entre zonas donde hay animales vivos
+-List<JButton> zoneButtons // uno por zona; habilitado solo si model.isZoneVisible(id)
 +void refresh(GameModel model)
 
 class SummaryPanel extends JPanel
-+void showSummary(MatchSummary summary) // bots eliminados, bajas por pack, tazas por jugador y duración
-+JButton btnBackToLobby
++void showSummary(MatchSummary summary) // ganador y motivo, bots eliminados, bajas por pack, tazas por jugador y duración
++JButton btnBackToLobby // LobbyController.backToLobby()
 ```
 
 ### Package: app
@@ -787,7 +876,7 @@ class SummaryPanel extends JPanel
 ```mermaid
 classDiagram
     class ClientApp {
-        +main(String[] args)$ void
+        +main(String\[] args)$ void
     }
     ClientApp ..> GameModel : crea
     ClientApp ..> ServerConnection : crea
@@ -799,5 +888,10 @@ classDiagram
 
 ```java
 class ClientApp
-+static void main(String[] args) // crea el modelo, la conexión, los controladores y la ventana; conecta todo
++static void main(String\[] args)
+// 1. SvgCache.getInstance().preload()
+// 2. crea GameModel y MessageDispatcher; registra los 7 handlers
+// 3. ServerConnection.getInstance().connect(dispatcher)
+// 4. crea LobbyController, GameController y MainWindow (en SwingUtilities.invokeLater); MainWindow y GamePanel se suscriben al modelo
 ```
+
