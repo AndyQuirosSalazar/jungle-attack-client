@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Locale;
+
 public enum AnimalSpecies {
     JAGUAR("Jaguar", "jaguar.svg"),
     SLOTH("Perezoso", "sloth.svg"),
@@ -21,9 +23,19 @@ public enum AnimalSpecies {
 
     public String getSvgFile() { return svgFile; }
 
-    /** Convierte el texto del JSON a la especie. */
+    /**
+     * Convierte el texto del JSON a la especie.
+     * Devuelve null si el texto viene vacío o no corresponde a ninguna especie
+     * (por ejemplo, opponentChoice cuando el rival aún no ha elegido).
+     */
     public static AnimalSpecies fromName(String name) {
-        // TODO
-        return null;
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        try {
+            return valueOf(name.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return null; // nombre desconocido
+        }
     }
 }
