@@ -1,7 +1,12 @@
 package model;
 
 public class Flag extends Entity {
-    private PackType owner; // de quién es la bandera
+    private final PackType owner; // de quién es la bandera
+
+    public Flag(int id, PackType owner, double x, double y) {
+        super(id, x, y);
+        this.owner = owner;
+    }
 
     @Override
     public String getSvgName() {

@@ -60,6 +60,7 @@ classDiagram
         +int SPECIES\_COUNT$
         +int MAX\_PLAYER\_ENERGY$
         +long TICK\_MS$
+        +double TELEPORT\_THRESHOLD$
         +int TARGET\_FPS$
         +int FRAME\_DELAY\_MS$
         +int WINDOW\_WIDTH$
@@ -91,6 +92,7 @@ public interface IConstants
 +static final int SPECIES\_COUNT = 7 // especies disponibles
 +static final int MAX\_PLAYER\_ENERGY = 20 // energía máxima de un animal del jugador
 +static final long TICK\_MS = 100 // cada cuánto llega un STATE\_UPDATE (para interpolar)
++static final double TELEPORT\_THRESHOLD = 200 // salto mayor a esto no se interpola (cambio de zona)
 +static final int TARGET\_FPS = 30 // cuadros por segundo del render
 +static final int FRAME\_DELAY\_MS = 1000 / TARGET\_FPS // delay del Timer de Swing
 +static final int WINDOW\_WIDTH = 1024 // ancho de la ventana
@@ -184,13 +186,19 @@ classDiagram
         +isOwn() boolean
         +isSelected() boolean
         +setSelected(boolean selected) void
+        +getSpecies() AnimalSpecies
+        +getPackId() int
+        +getPackType() PackType
+        +getEnergy() int
         +getSvgName() String
     }
     class CoffeeCup {
+        +CoffeeCup(int id, double x, double y)
         +getSvgName() String
     }
     class Flag {
         -PackType owner
+        +Flag(int id, PackType owner, double x, double y)
         +getSvgName() String
     }
     class Pack {
@@ -328,6 +336,7 @@ abstract class Entity
 #int id // id asignado por el servidor
 #double x // coordenada horizontal local a la zona (0 a ZONE\_WIDTH)
 #double y // coordenada vertical local a la zona (0 a ZONE\_HEIGHT)
+#Entity(int id, double x, double y) // toda entidad viene del servidor con id y posición
 +int getId()
 +double getX()
 +double getY()
@@ -349,14 +358,20 @@ class Animal extends Entity
 +boolean isAlive()
 +boolean isOwn() // packType == PLAYER
 +boolean isSelected()
-+void setSelected(boolean selected)
++void setSelected(boolean selected) // ignora la selección si el animal está muerto
++AnimalSpecies getSpecies()
++int getPackId()
++PackType getPackType()
++int getEnergy()
 +String getSvgName() // sobrescribe: devuelve el SVG de su especie
 
 class CoffeeCup extends Entity
++CoffeeCup(int id, double x, double y)
 +String getSvgName() // sobrescribe: devuelve el SVG de la taza de café
 
 class Flag extends Entity
 -PackType owner // de quién es la bandera
++Flag(int id, PackType owner, double x, double y)
 +String getSvgName() // sobrescribe: devuelve el SVG de la bandera
 
 class Pack

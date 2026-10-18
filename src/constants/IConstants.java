@@ -15,6 +15,7 @@ public interface IConstants {
     int SPECIES_COUNT = 7;                     // especies disponibles
     int MAX_PLAYER_ENERGY = 20;                // energía máxima de un animal del jugador
     long TICK_MS = 100;                        // cada cuánto llega un STATE_UPDATE
+    double TELEPORT_THRESHOLD = 200;           // salto mayor a esto no se interpola (cambio de zona)
     int TARGET_FPS = 30;                       // cuadros por segundo del render
     int FRAME_DELAY_MS = 1000 / TARGET_FPS;    // delay del Timer de Swing
     int WINDOW_WIDTH = 1024;                   // ancho de la ventana
