@@ -33,8 +33,8 @@ public class GameModel {
     private int botsKilled;                   // contador de bots eliminados
     private int cupsConsumed;                 // tazas consumidas
     private List<GameEvent> lastEvents; // eventos del último snapshot
-    private String lastError;                 // último mensaje de error del servidor
-    private long lastSnapshotNanos;           // cuándo llegó el último STATE_UPDATE
+    private String lastError;                 // ultimo mensaje de error del servidor
+    private long lastSnapshotNanos;           // cuándo llegó el ultimo STATE_UPDATE
     private MatchSummary summary;             // resumen al terminar
     private List<IGameObserver> observers; // vistas suscritas
 
