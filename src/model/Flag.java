@@ -8,9 +8,11 @@ public class Flag extends Entity {
         this.owner = owner;
     }
 
+    public PackType getOwner() { return owner; }
+
     @Override
     public String getSvgName() {
-        // TODO: devuelve el SVG de la bandera
-        return null;
+        // devuelve el SVG de la bandera
+        return "flag.svg";
     }
 }
