@@ -1,9 +1,23 @@
 package view;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+
+import constants.IConstants;
+import controller.LobbyController;
 
 public class LobbyPanel extends JPanel {
     public JTextField txtNickname;  // apodo
@@ -13,4 +27,124 @@ public class LobbyPanel extends JPanel {
     public JLabel lblCode;          // muestra el código generado mientras espera al oponente
     public JLabel lblError;         // errores del servidor o de validación local
 
+    /** Los botones le piden al LobbyController crear o unirse a una partida. */
+    public LobbyPanel(LobbyController controller) {
+        setLayout(new GridBagLayout());
+
+        JLabel title = new JLabel("Jungle Attack", SwingConstants.CENTER);
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 36f));
+
+        txtNickname = new JTextField(16);
+        limitLength(txtNickname, IConstants.NICKNAME_MAX_LENGTH, false);
+        txtMatchCode = new JTextField(6);
+        limitLength(txtMatchCode, IConstants.MATCH_CODE_LENGTH, true); // el código siempre en mayúsculas
+
+        btnCreate = new JButton("Crear partida");
+        btnJoin = new JButton("Unirse a partida");
+
+        lblCode = new JLabel(" ", SwingConstants.CENTER);
+        lblCode.setFont(lblCode.getFont().deriveFont(Font.BOLD, 20f));
+        lblError = new JLabel(" ", SwingConstants.CENTER);
+        lblError.setForeground(new Color(200, 30, 30));
+
+        btnCreate.addActionListener(e -> {
+            clearError();
+            controller.createMatch(txtNickname.getText());
+        });
+        btnJoin.addActionListener(e -> {
+            clearError();
+            controller.joinMatch(txtNickname.getText(), txtMatchCode.getText());
+        });
+        // Enter en un campo hace lo mismo que su botón
+        txtNickname.addActionListener(e -> btnCreate.doClick());
+        txtMatchCode.addActionListener(e -> btnJoin.doClick());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.insets = new Insets(6, 8, 6, 8);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        c.gridy = 0;
+        add(title, c);
+        c.gridwidth = 1;
+        c.gridy = 1;
+        add(new JLabel("Apodo:", SwingConstants.RIGHT), c);
+        c.gridx = 1;
+        add(txtNickname, c);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        add(btnCreate, c);
+        c.gridwidth = 1;
+        c.gridy = 3;
+        add(new JLabel("Código:", SwingConstants.RIGHT), c);
+        c.gridx = 1;
+        add(txtMatchCode, c);
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 2;
+        add(btnJoin, c);
+        c.gridy = 5;
+        add(lblCode, c);
+        c.gridy = 6;
+        add(lblError, c);
+        setPreferredSize(new Dimension(IConstants.WINDOW_WIDTH, IConstants.WINDOW_HEIGHT));
+    }
+
+    /** Ya se creó la partida: muestra el código y bloquea la pantalla hasta que llegue el oponente. */
+    public void showWaiting(String code) {
+        lblCode.setText("Código de tu partida: " + code + "  (esperando al oponente...)");
+        clearError();
+        setInputsEnabled(false);
+    }
+
+    /** Muestra un error de validación o del servidor. */
+    public void showError(String message) {
+        lblError.setText(message == null || message.isBlank() ? " " : message);
+    }
+
+    public void clearError() {
+        lblError.setText(" ");
+    }
+
+    /** Deja la pantalla como nueva (al volver al lobby). */
+    public void reset() {
+        lblCode.setText(" ");
+        clearError();
+        txtMatchCode.setText("");
+        setInputsEnabled(true);
+    }
+
+    private void setInputsEnabled(boolean enabled) {
+        txtNickname.setEnabled(enabled);
+        txtMatchCode.setEnabled(enabled);
+        btnCreate.setEnabled(enabled);
+        btnJoin.setEnabled(enabled);
+    }
+
+    /** No deja escribir más de maxLength caracteres (y, si se pide, pasa todo a mayúsculas). */
+    private static void limitLength(JTextField field, int maxLength, boolean upperCase) {
+        ((AbstractDocument) field.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr)
+                    throws BadLocationException {
+                replace(fb, offset, 0, text, attr);
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attr)
+                    throws BadLocationException {
+                String incoming = text == null ? "" : (upperCase ? text.toUpperCase() : text);
+                int room = maxLength - (fb.getDocument().getLength() - length);
+                if (room <= 0 && length == 0) {
+                    return;
+                }
+                if (incoming.length() > room) {
+                    incoming = incoming.substring(0, Math.max(0, room));
+                }
+                super.replace(fb, offset, length, incoming, attr);
+            }
+        });
+    }
 }
