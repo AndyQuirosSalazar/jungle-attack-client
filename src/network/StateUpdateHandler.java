@@ -1,6 +1,7 @@
 package network;
 
 import model.GameModel;
+import model.dto.Payloads;
 
 public class StateUpdateHandler implements IMessageHandler {
     private GameModel model;
@@ -12,6 +13,6 @@ public class StateUpdateHandler implements IMessageHandler {
     /** model.applySnapshot(payloadAs(m, Payloads.StateUpdate.class), System.nanoTime()) */
     @Override
     public void handle(Message message) {
-        // TODO
+        model.applySnapshot(MessageSerializer.payloadAs(message, Payloads.StateUpdate.class), System.nanoTime());
     }
 }

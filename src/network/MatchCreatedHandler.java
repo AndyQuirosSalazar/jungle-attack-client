@@ -1,6 +1,7 @@
 package network;
 
 import model.GameModel;
+import model.GamePhase;
 
 public class MatchCreatedHandler implements IMessageHandler {
     private GameModel model;
@@ -12,6 +13,7 @@ public class MatchCreatedHandler implements IMessageHandler {
     /** Guarda el código y pasa a WAITING_OPPONENT */
     @Override
     public void handle(Message message) {
-        // TODO
+        model.setMatchCode(PayloadFields.getString(message, "code"));
+        model.setPhase(GamePhase.WAITING_OPPONENT);
     }
 }

@@ -28,7 +28,7 @@ public class ClientApp {
 
         // 2. Modelo y despachador; un manejador por cada mensaje que manda el servidor
         GameModel model = new GameModel();
-        MessageDispatcher dispatcher = new MessageDispatcher();
+        MessageDispatcher dispatcher = new MessageDispatcher(model);
         dispatcher.register(MessageType.MATCH_CREATED, new MatchCreatedHandler(model));
         dispatcher.register(MessageType.MATCH_JOINED, new MatchJoinedHandler(model));
         dispatcher.register(MessageType.ANIMAL_SELECTION, new AnimalSelectionHandler(model));

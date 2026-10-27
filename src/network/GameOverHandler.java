@@ -1,6 +1,7 @@
 package network;
 
 import model.GameModel;
+import model.dto.Payloads;
 
 public class GameOverHandler implements IMessageHandler {
     private GameModel model;
@@ -12,6 +13,6 @@ public class GameOverHandler implements IMessageHandler {
     /** model.applySummary(payloadAs(m, Payloads.Summary.class)) */
     @Override
     public void handle(Message message) {
-        // TODO
+        model.applySummary(MessageSerializer.payloadAs(message, Payloads.Summary.class));
     }
 }
