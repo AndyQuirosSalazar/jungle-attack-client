@@ -28,7 +28,7 @@ public class GameController {
         List<Integer> selected = selectionManager.getSelectedIds();
         Zone zone = model.getCurrentZone();
         if (selected.isEmpty() || zone == null || !zone.isOnPath(x, y, IConstants.CLICK_TOLERANCE)) {
-            return; // sin selección, o el clic no cayó sobre un camino
+            return; // sin selección, o el clic no cayó sobre un camino de la imagen de la zona
         }
         connection.send(Message.create(MessageType.MOVE_ANIMALS, Map.of(
                 "animalIds", selected,

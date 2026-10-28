@@ -9,7 +9,9 @@ public interface IConstants {
     String MATCH_CODE_REGEX = "[A-Za-z0-9]{4}"; // validación local del código
     int NICKNAME_MIN_LENGTH = 3;               // igual que el servidor
     int NICKNAME_MAX_LENGTH = 16;              // igual que el servidor
-    int ZONE_COUNT = 12;                       // zonas del mapa
+    int MAP_COLUMNS = 4;                       // igual que el servidor
+    int MAP_ROWS = 3;                          // igual que el servidor
+    int ZONE_COUNT = MAP_COLUMNS * MAP_ROWS;   // zonas del mapa
     int ZONE_WIDTH = 800;                      // ancho de una zona (unidades del servidor)
     int ZONE_HEIGHT = 600;                     // alto de una zona (unidades del servidor)
     int SPECIES_COUNT = 7;                     // especies disponibles
