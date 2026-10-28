@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><title>WHITE_FACED_MONKEY</title>
+<path d="M64,100 C64,120 92,124 94,106 C95,94 82,94 82,102" fill="none" stroke="#2a2420" stroke-width="6" stroke-linecap="round"/>
+<g><path d="M46,52 Q30,58 26,76" fill="none" stroke="#2a2420" stroke-width="8" stroke-linecap="round"/><circle cx="26" cy="78" r="4.5" fill="#2a2420"/><path d="M52,92 Q40,100 40,114" fill="none" stroke="#2a2420" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="116" r="4.5" fill="#2a2420"/></g><g transform="translate(128,0) scale(-1,1)"><path d="M46,52 Q30,58 26,76" fill="none" stroke="#2a2420" stroke-width="8" stroke-linecap="round"/><circle cx="26" cy="78" r="4.5" fill="#2a2420"/><path d="M52,92 Q40,100 40,114" fill="none" stroke="#2a2420" stroke-width="8" stroke-linecap="round"/><circle cx="40" cy="116" r="4.5" fill="#2a2420"/></g>
+<ellipse cx="64" cy="72" rx="18" ry="28" fill="#3a322c"/><ellipse cx="64" cy="50" rx="21" ry="12" fill="#efe6d2"/>
+<circle cx="49" cy="32" r="4" fill="#e7c9b0"/><circle cx="79" cy="32" r="4" fill="#e7c9b0"/>
+<circle cx="64" cy="30" r="14" fill="#f2e9d6"/><path d="M50,32 A14,14 0 0 0 78,32 Q64,24 50,32 Z" fill="#2a2420"/>
+<ellipse cx="64" cy="20" rx="6" ry="4" fill="#e7b9a0"/><circle cx="58" cy="26" r="1.8" fill="#1d1612"/><circle cx="70" cy="26" r="1.8" fill="#1d1612"/>
+</svg>

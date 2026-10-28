@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><title>COFFEE_CUP</title>
+<circle cx="64" cy="66" r="52" fill="#d9d0bf"/>
+<circle cx="64" cy="64" r="52" fill="#f3eee3"/><circle cx="64" cy="64" r="42" fill="#e2dac9"/>
+<ellipse cx="100" cy="64" rx="15" ry="12" fill="none" stroke="#fbf8f1" stroke-width="8"/>
+<circle cx="62" cy="64" r="34" fill="#fbf8f1"/><circle cx="62" cy="64" r="28" fill="#e4dccd"/>
+<circle cx="62" cy="64" r="24" fill="#5a3a22"/><circle cx="62" cy="64" r="18" fill="#7a5232"/>
+<path d="M62,74 C50,66 52,56 58,56 C60,56 62,58 62,60 C62,58 64,56 66,56 C72,56 74,66 62,74 Z" fill="#f1e2c6"/>
+<g transform="rotate(-35 40 98)"><rect x="18" y="95" width="34" height="5" rx="2.5" fill="#aab0b6"/><ellipse cx="54" cy="97.5" rx="8" ry="5.5" fill="#c3c8cd"/></g>
+</svg>
