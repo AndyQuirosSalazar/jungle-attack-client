@@ -30,10 +30,16 @@ public class ServerConnection {
         return Holder.INSTANCE;
     }
 
-    /** Abre el socket e inicia el hilo lector. */
+    /** Se conecta al servidor de siempre (IConstants.SERVER_HOST). */
     public void connect(MessageDispatcher dispatcher) {
+        connect(dispatcher, IConstants.SERVER_HOST);
+    }
+
+    /** Abre el socket hacia host (nombre o IP del servidor; vacío = IConstants.SERVER_HOST) e inicia el hilo lector. */
+    public void connect(MessageDispatcher dispatcher, String host) {
+        String target = (host == null || host.isBlank()) ? IConstants.SERVER_HOST : host.trim();
         try {
-            socket = new Socket(IConstants.SERVER_HOST, IConstants.SERVER_PORT);
+            socket = new Socket(target, IConstants.SERVER_PORT);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
         } catch (IOException e) {
