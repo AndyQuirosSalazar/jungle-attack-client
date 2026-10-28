@@ -7,11 +7,13 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
+import java.awt.image.BufferedImage;
 
 import model.PathSegment;
+import model.TerrainTile;
 import model.Zone;
 
-/** Dibuja los caminos de la zona. */
+/** Dibuja la imagen de la zona con sus caminos; si no se pudo leer, dibuja los segmentos del servidor. */
 public class PathRenderer implements IDrawable {
     private static final Color EDGE_COLOR = new Color(120, 90, 55);   // borde del camino
     private static final Color ROAD_COLOR = new Color(205, 175, 120); // centro del camino
@@ -28,6 +30,16 @@ public class PathRenderer implements IDrawable {
 
     @Override
     public void draw(Graphics2D g, double alpha) {
+        TerrainTile terrain = zone.getTerrain();
+        if (terrain != null) {
+            BufferedImage background = SvgCache.getInstance()
+                    .getBackground(terrain.getSvgFile(), panel.getWidth(), panel.getHeight());
+            if (background != null) {
+                g.drawImage(background, 0, 0, null);
+                return;
+            }
+        }
+
         Stroke oldStroke = g.getStroke();
         Object oldAntialiasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

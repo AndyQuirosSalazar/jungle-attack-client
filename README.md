@@ -37,7 +37,7 @@ Para no cargar todo al servidor, el cliente no envía mensajes que se sabe que v
 |-|-|-|
 |Crear / unirse|Apodo entre 3 y 16 caracteres; código con `MATCH\_CODE\_REGEX`|LobbyController|
 |Elegir especie|Solo especies disponibles (botón deshabilitado si ya la tomó el rival)|AnimalSelectionPanel|
-|Mover|Hay animales seleccionados y el clic cae sobre un camino|GameController + PathSegment|
+|Mover|Hay animales seleccionados y el clic cae sobre un camino de la imagen de la zona (`jungla\_\*.svg`, con su ancho real)|GameController + TerrainTile|
 |Atacar|Hay animales seleccionados y el objetivo no es propio|GameController|
 |Cambiar zona|Solo zonas visibles (botones deshabilitados)|GameController + HudPanel|
 |Animación|Interpolación entre snapshots a 30 FPS sin pedir nada al servidor|GamePanel|

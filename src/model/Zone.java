@@ -8,6 +8,7 @@ public class Zone {
     private final int id;                          // 0 a 11
     private final List<Integer> neighborIds;       // zonas conectadas por camino
     private final List<PathSegment> paths;         // caminos (vienen en GAME_STARTED)
+    private final TerrainTile terrain;             // imagen de fondo con los caminos dibujados
     private boolean visible;                       // true si el jugador tiene un animal vivo ahí
     private final List<Entity> entities;           // animales, tazas, bandera
 
@@ -16,6 +17,7 @@ public class Zone {
         this.id = id;
         this.neighborIds = neighborIds == null ? List.of() : List.copyOf(neighborIds);
         this.paths = paths == null ? List.of() : List.copyOf(paths);
+        this.terrain = TerrainTile.forZone(id);
         this.visible = false;
         this.entities = new ArrayList<>();
     }
@@ -26,6 +28,9 @@ public class Zone {
 
     /** Para PathRenderer. */
     public List<PathSegment> getPaths() { return paths; }
+
+    /** Puede ser null si el id no está en la cuadrícula. */
+    public TerrainTile getTerrain() { return terrain; }
 
     public boolean isNeighbor(int zoneId) { return neighborIds.contains(zoneId); }
 
@@ -59,8 +64,14 @@ public class Zone {
 
     public void clearEntities() { entities.clear(); }
 
-    /** Algún PathSegment contiene el punto. */
+    /**
+     * El punto cae sobre un camino de la imagen de la zona (con el ancho con que está dibujado).
+     * Si la imagen no se pudo leer, se usa algún PathSegment del servidor con la tolerancia.
+     */
     public boolean isOnPath(double x, double y, double tolerance) {
+        if (terrain != null && terrain.hasRoad()) {
+            return terrain.isOnRoad(x, y);
+        }
         for (PathSegment path : paths) {
             if (path.contains(x, y, tolerance)) {
                 return true;

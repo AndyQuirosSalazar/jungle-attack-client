@@ -27,6 +27,7 @@ public class SvgCache {
     private static final String FLAG_SVG = "flag.svg";
 
     private Map<String, BufferedImage> cache = new ConcurrentHashMap<>(); // imágenes ya rasterizadas
+    private Map<String, BufferedImage> backgrounds = new ConcurrentHashMap<>(); // fondos: solo el último tamaño pedido
 
     public static SvgCache getInstance() {
         return Holder.INSTANCE;
@@ -45,6 +46,38 @@ public class SvgCache {
     public BufferedImage get(String svgName, int size) {
         int safeSize = Math.max(1, size);
         return cache.computeIfAbsent(svgName + "@" + safeSize, key -> rasterize(svgName, safeSize));
+    }
+
+    /**
+     * Fondo de zona estirado a width x height, igual que CoordinateMapper escala x e y por separado
+     * (así los caminos de la imagen quedan donde el modelo los valida). Se guarda solo el último tamaño
+     * para no llenar la memoria mientras se redimensiona la ventana. Devuelve null si el SVG no se pudo leer.
+     */
+    public BufferedImage getBackground(String svgName, int width, int height) {
+        BufferedImage current = backgrounds.get(svgName);
+        if (current != null && current.getWidth() == width && current.getHeight() == height) {
+            return current;
+        }
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+        SVGDocument document = load(svgName);
+        if (document == null) {
+            return null;
+        }
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        try {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+            Dimension2D natural = document.size();
+            g.scale(width / natural.getWidth(), height / natural.getHeight());
+            document.render(null, g);
+        } finally {
+            g.dispose();
+        }
+        backgrounds.put(svgName, image);
+        return image;
     }
 
     /** SVG -> imagen cuadrada de size x size, conservando la proporción y centrada. */
