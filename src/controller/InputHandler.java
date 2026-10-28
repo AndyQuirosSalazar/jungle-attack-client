@@ -28,11 +28,16 @@ public class InputHandler extends MouseAdapter {
         this.selectionBox = selectionBox;
     }
 
-    /** Clic izquierdo: inicia selección. */
+    /**
+     * Clic izquierdo: inicia selección. Clic derecho: la orden se da al presionar (no en mouseClicked,
+     * que Swing descarta si el mouse se movió aunque sea un píxel entre presionar y soltar).
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             dragStart = e.getPoint();
+        } else if (SwingUtilities.isRightMouseButton(e)) {
+            issueCommand(e);
         }
     }
 
@@ -61,7 +66,19 @@ public class InputHandler extends MouseAdapter {
         Component panel = e.getComponent();
         if (Math.abs(end.x - start.x) < DRAG_THRESHOLD && Math.abs(end.y - start.y) < DRAG_THRESHOLD) {
             // casi no se movió: es un clic simple (con Shift se agrega a la selección)
-            selectionManager.selectAt(worldX(end.x, panel), worldY(end.y, panel), e.isShiftDown());
+            double x = worldX(end.x, panel);
+            double y = worldY(end.y, panel);
+            if (!selectionManager.hasSelection() || selectionManager.findOwnAt(x, y) != null) {
+                selectionManager.selectAt(x, y, e.isShiftDown());
+                return;
+            }
+            // con animales seleccionados, un clic izquierdo sobre un enemigo también ataca
+            Animal target = selectionManager.findEnemyAt(x, y);
+            if (target != null) {
+                controller.onAttackRequested(target.getId());
+            } else {
+                selectionManager.selectAt(x, y, e.isShiftDown());
+            }
             return;
         }
         double x1 = worldX(start.x, panel);
@@ -72,12 +89,8 @@ public class InputHandler extends MouseAdapter {
                 Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1)));
     }
 
-    /** Clic derecho sobre enemigo/bot: atacar; clic derecho en camino: mover. */
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (!SwingUtilities.isRightMouseButton(e)) {
-            return; // el clic izquierdo ya se resolvió en mouseReleased
-        }
+    /** Clic derecho sobre enemigo/bot: atacar; clic derecho en camino (o cerca): mover. */
+    private void issueCommand(MouseEvent e) {
         Component panel = e.getComponent();
         double x = worldX(e.getX(), panel);
         double y = worldY(e.getY(), panel);

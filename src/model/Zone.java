@@ -79,4 +79,27 @@ public class Zone {
         }
         return false;
     }
+
+    /**
+     * Punto del camino más cercano a (x, y) a no más de maxDistance ({x, y}), o null si no hay camino
+     * tan cerca. Si el punto ya está sobre el camino se devuelve tal cual.
+     */
+    public double[] snapToPath(double x, double y, double tolerance, double maxDistance) {
+        if (terrain != null && terrain.hasRoad()) {
+            return terrain.nearestRoadPoint(x, y, maxDistance);
+        }
+        double[] best = null;
+        double bestDistanceSquared = Double.MAX_VALUE;
+        for (PathSegment path : paths) {
+            double d = path.distanceSquaredTo(x, y);
+            if (d < bestDistanceSquared) {
+                bestDistanceSquared = d;
+                best = path.closestPoint(x, y);
+            }
+        }
+        if (best == null || bestDistanceSquared > (tolerance + maxDistance) * (tolerance + maxDistance)) {
+            return null;
+        }
+        return bestDistanceSquared <= tolerance * tolerance ? new double[] {x, y} : best;
+    }
 }

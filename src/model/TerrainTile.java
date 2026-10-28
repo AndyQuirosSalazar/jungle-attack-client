@@ -34,6 +34,7 @@ public enum TerrainTile {
     private static final Pattern PATH = Pattern.compile("<path\\b[^>]*?\\bd=\"([^\"]+)\"[^>]*?stroke-width=\"([\\d.]+)\"");
     private static final Pattern CIRCLE = Pattern.compile(
             "<circle\\b[^>]*?cx=\"([\\d.-]+)\"[^>]*?cy=\"([\\d.-]+)\"[^>]*?\\br=\"([\\d.]+)\"");
+    private static final double SNAP_STEP = 4; // separación entre anillos al buscar el camino más cercano
     private static final Pattern PATH_TOKEN = Pattern.compile("[MLCQZmlcqz]|-?\\d*\\.?\\d+(?:[eE]-?\\d+)?");
 
     private final String svgFile; // nombre del archivo SVG
@@ -65,6 +66,35 @@ public enum TerrainTile {
     public boolean isOnRoad(double x, double y) {
         Area area = getRoad();
         return area != null && area.contains(x, y);
+    }
+
+    /**
+     * Punto del camino más cercano a (x, y) a no más de maxDistance, buscando en anillos alrededor
+     * del punto; {x, y} o null si no hay camino tan cerca.
+     */
+    public double[] nearestRoadPoint(double x, double y, double maxDistance) {
+        Area area = getRoad();
+        if (area == null) {
+            return null;
+        }
+        if (area.contains(x, y)) {
+            return new double[] {x, y};
+        }
+        for (double radius = SNAP_STEP; radius <= maxDistance; radius += SNAP_STEP) {
+            int samples = Math.max(16, (int) (2 * Math.PI * radius / SNAP_STEP));
+            for (int i = 0; i < samples; i++) {
+                double angle = 2 * Math.PI * i / samples;
+                double px = x + radius * Math.cos(angle);
+                double py = y + radius * Math.sin(angle);
+                if (area.contains(px, py)) {
+                    // un poco más adentro para que el destino no quede justo en el borde
+                    double inX = x + (radius + SNAP_STEP) * Math.cos(angle);
+                    double inY = y + (radius + SNAP_STEP) * Math.sin(angle);
+                    return area.contains(inX, inY) ? new double[] {inX, inY} : new double[] {px, py};
+                }
+            }
+        }
+        return null;
     }
 
     private synchronized Area getRoad() {

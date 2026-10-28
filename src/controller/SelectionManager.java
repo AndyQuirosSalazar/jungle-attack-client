@@ -79,6 +79,15 @@ public class SelectionManager {
         return ids;
     }
 
+    public boolean hasSelection() {
+        return !model.getSelectedAnimals().isEmpty();
+    }
+
+    /** Animal propio vivo bajo el punto (radio CLICK_TOLERANCE); null si no hay ninguno. */
+    public Animal findOwnAt(double x, double y) {
+        return findNearest(x, y, true);
+    }
+
     /** Enemigo más cercano dentro de ATTACK_CLICK_TOLERANCE (más amplio que el de selección). */
     public Animal findEnemyAt(double x, double y) {
         return findNearest(x, y, false, IConstants.ATTACK_CLICK_TOLERANCE);
@@ -97,7 +106,10 @@ public class SelectionManager {
             if (!animal.isAlive() || animal.isOwn() != own) {
                 continue;
             }
-            double distance = Math.hypot(animal.getRenderX(alpha) - x, animal.getRenderY(alpha) - y);
+            // se mide contra donde se dibuja y contra la última posición del servidor: vale la más cercana
+            double distance = Math.min(
+                    Math.hypot(animal.getRenderX(alpha) - x, animal.getRenderY(alpha) - y),
+                    Math.hypot(animal.getX() - x, animal.getY() - y));
             if (distance <= nearestDistance) {
                 nearest = animal;
                 nearestDistance = distance;

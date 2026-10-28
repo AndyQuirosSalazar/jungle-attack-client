@@ -23,18 +23,25 @@ public class GameController {
         this.selectionManager = selectionManager;
     }
 
-    /** Si hay selección y zone.isOnPath(x, y, CLICK_TOLERANCE) -> MOVE_ANIMALS { animalIds, zoneId, x, y }. */
+    /**
+     * Si hay selección -> MOVE_ANIMALS { animalIds, zoneId, x, y }. Un clic cerca del camino (a menos de
+     * MOVE_SNAP_DISTANCE) se ajusta al punto del camino más cercano en vez de ignorarse.
+     */
     public void onMoveRequested(double x, double y) {
         List<Integer> selected = selectionManager.getSelectedIds();
         Zone zone = model.getCurrentZone();
-        if (selected.isEmpty() || zone == null || !zone.isOnPath(x, y, IConstants.CLICK_TOLERANCE)) {
-            return; // sin selección, o el clic no cayó sobre un camino de la imagen de la zona
+        if (selected.isEmpty() || zone == null) {
+            return;
+        }
+        double[] target = zone.snapToPath(x, y, IConstants.CLICK_TOLERANCE, IConstants.MOVE_SNAP_DISTANCE);
+        if (target == null) {
+            return; // el clic quedó lejos de cualquier camino de la zona
         }
         connection.send(Message.create(MessageType.MOVE_ANIMALS, Map.of(
                 "animalIds", selected,
                 "zoneId", zone.getId(),
-                "x", x,
-                "y", y)));
+                "x", target[0],
+                "y", target[1])));
     }
 
     /** Si hay selección y el objetivo no es propio -> ATTACK { animalIds, targetId }. */
