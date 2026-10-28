@@ -3,7 +3,7 @@ package constants;
 import java.awt.Color;
 
 public interface IConstants {
-    String SERVER_HOST = "localhost";          // host del servidor
+    String SERVER_HOST = "172.18.136.2";       // host del servidor (máquina B, DESKTOP-JH0JGLG)
     int SERVER_PORT = 5050;                    // igual que el servidor
     int MATCH_CODE_LENGTH = 4;                 // largo del código de partida
     String MATCH_CODE_REGEX = "[A-Za-z0-9]{4}"; // validación local del código
