@@ -27,7 +27,11 @@ public interface IConstants {
     int ENERGY_BAR_HEIGHT = 4;                 // alto de la barra de energía
     int CLICK_TOLERANCE = 20;                  // radio en píxeles para detectar clics
     int ATTACK_CLICK_TOLERANCE = 40;           // radio en píxeles para elegir un objetivo de ataque
-    int MOVE_SNAP_DISTANCE = 80;               // un clic de movimiento fuera del camino se ajusta al camino más cercano a esta distancia
+    double ENCOUNTER_RADIUS = 40;              // igual que el servidor: distancia máxima para que ATTACK enganche
+    double ATTACK_RANGE_MARGIN = 4;            // se pide el ataque un poco antes del borde (el snapshot llega atrasado)
+    double CHASE_RESEND_DISTANCE = 30;         // cuánto se mueve el objetivo antes de volver a mandar a los perseguidores
+    double ZONE_EDGE_MARGIN = 100;             // igual que el servidor: un destino más cerca del borde cruza a la zona vecina
+    int MOVE_SNAP_DISTANCE = 80;              // un clic de movimiento fuera del camino se ajusta al camino más cercano a esta distancia
     String ASSETS_PATH = "/assets/svg/";       // carpeta de los SVG
     Color PLAYER_COLOR = new Color(46, 160, 67);    // verde
     Color OPPONENT_COLOR = new Color(214, 48, 49);  // rojo
