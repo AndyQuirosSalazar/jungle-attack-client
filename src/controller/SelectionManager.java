@@ -79,18 +79,22 @@ public class SelectionManager {
         return ids;
     }
 
-    /** Usa CLICK_TOLERANCE. */
-    public Animal findAnimalAt(double x, double y) {
-        return findNearest(x, y, false);
+    /** Enemigo más cercano dentro de ATTACK_CLICK_TOLERANCE (más amplio que el de selección). */
+    public Animal findEnemyAt(double x, double y) {
+        return findNearest(x, y, false, IConstants.ATTACK_CLICK_TOLERANCE);
     }
 
-    /** El animal vivo más cercano al punto y a ≤ CLICK_TOLERANCE; null si no hay ninguno. */
-    private Animal findNearest(double x, double y, boolean ownOnly) {
+    private Animal findNearest(double x, double y, boolean own) {
+        return findNearest(x, y, own, IConstants.CLICK_TOLERANCE);
+    }
+
+    /** El animal vivo (propio si own, enemigo si no) más cercano al punto y a ≤ tolerance; null si no hay ninguno. */
+    private Animal findNearest(double x, double y, boolean own, double tolerance) {
         Animal nearest = null;
-        double nearestDistance = IConstants.CLICK_TOLERANCE;
+        double nearestDistance = tolerance;
         double alpha = model.getInterpolationAlpha(System.nanoTime()); // el clic cae donde se dibuja el animal
         for (Animal animal : animalsInCurrentZone()) {
-            if (!animal.isAlive() || (ownOnly && !animal.isOwn())) {
+            if (!animal.isAlive() || animal.isOwn() != own) {
                 continue;
             }
             double distance = Math.hypot(animal.getRenderX(alpha) - x, animal.getRenderY(alpha) - y);

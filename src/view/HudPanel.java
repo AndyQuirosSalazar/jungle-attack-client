@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -11,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import constants.IConstants;
 import controller.GameController;
@@ -21,6 +23,9 @@ public class HudPanel extends JPanel {
     private JLabel lblCups;              // tazas consumidas
     private JLabel lblDamage;            // capacidad de daño del pack
     private List<JButton> zoneButtons;   // uno por zona; habilitado solo si model.isZoneVisible(id)
+    private Color defaultButtonBackground;
+    private Border defaultButtonBorder;
+    private Border currentZoneBorder;    // marca la zona que se está viendo
 
     /** Los botones de zona le piden al GameController cambiar la zona que se está viendo. */
     public HudPanel(GameController controller) {
@@ -51,6 +56,11 @@ public class HudPanel extends JPanel {
             zoneButtons.add(button);
             zones.add(button);
         }
+        defaultButtonBackground = zoneButtons.get(0).getBackground();
+        defaultButtonBorder = zoneButtons.get(0).getBorder();
+        currentZoneBorder = BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2),
+                BorderFactory.createEmptyBorder(0, 4, 0, 4));
 
         JPanel content = new JPanel(new BorderLayout());
         content.setOpaque(false);
@@ -66,8 +76,11 @@ public class HudPanel extends JPanel {
         for (int id = 0; id < zoneButtons.size(); id++) {
             JButton button = zoneButtons.get(id);
             boolean current = id == model.getCurrentZoneId();
-            button.setEnabled(model.isZoneVisible(id) && !current);
-            button.setFont(button.getFont().deriveFont(current ? Font.BOLD : Font.PLAIN)); // la zona actual resalta
+            // la actual queda habilitada para que no se vea gris; el controller ignora el clic sobre ella
+            button.setEnabled(current || model.isZoneVisible(id));
+            button.setFont(button.getFont().deriveFont(current ? Font.BOLD : Font.PLAIN));
+            button.setBackground(current ? IConstants.SELECTION_COLOR : defaultButtonBackground);
+            button.setBorder(current ? currentZoneBorder : defaultButtonBorder);
         }
     }
 
