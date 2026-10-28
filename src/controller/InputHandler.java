@@ -81,8 +81,8 @@ public class InputHandler extends MouseAdapter {
         Component panel = e.getComponent();
         double x = worldX(e.getX(), panel);
         double y = worldY(e.getY(), panel);
-        Animal target = selectionManager.findAnimalAt(x, y);
-        if (target != null && !target.isOwn()) {
+        Animal target = selectionManager.findEnemyAt(x, y);
+        if (target != null) {
             controller.onAttackRequested(target.getId());
         } else {
             controller.onMoveRequested(x, y);

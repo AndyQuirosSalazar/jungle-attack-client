@@ -24,6 +24,7 @@ public interface IConstants {
     int SPRITE_SIZE = 32;                      // tamaño de un animal en pantalla
     int ENERGY_BAR_HEIGHT = 4;                 // alto de la barra de energía
     int CLICK_TOLERANCE = 20;                  // radio en píxeles para detectar clics
+    int ATTACK_CLICK_TOLERANCE = 40;           // radio en píxeles para elegir un objetivo de ataque
     String ASSETS_PATH = "/assets/svg/";       // carpeta de los SVG
     Color PLAYER_COLOR = new Color(46, 160, 67);    // verde
     Color OPPONENT_COLOR = new Color(214, 48, 49);  // rojo
