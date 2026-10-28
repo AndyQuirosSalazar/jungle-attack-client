@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><title>JAGUAR</title>
+<path d="M64,98 C66,112 78,118 92,120" fill="none" stroke="#d99a2b" stroke-width="8" stroke-linecap="round"/>
+<path d="M84,118 L92,120" fill="none" stroke="#2b1a0c" stroke-width="8" stroke-linecap="round"/>
+<g><ellipse cx="42" cy="48" rx="9" ry="6" fill="#d99a2b" transform="rotate(-25 42 48)"/><ellipse cx="42" cy="92" rx="9" ry="6" fill="#d99a2b" transform="rotate(25 42 92)"/><circle cx="36" cy="46" r="1.6" fill="#3a2410"/><circle cx="36" cy="94" r="1.6" fill="#3a2410"/></g><g transform="translate(128,0) scale(-1,1)"><ellipse cx="42" cy="48" rx="9" ry="6" fill="#d99a2b" transform="rotate(-25 42 48)"/><ellipse cx="42" cy="92" rx="9" ry="6" fill="#d99a2b" transform="rotate(25 42 92)"/><circle cx="36" cy="46" r="1.6" fill="#3a2410"/><circle cx="36" cy="94" r="1.6" fill="#3a2410"/></g>
+<ellipse cx="64" cy="68" rx="20" ry="34" fill="#e0a634"/><circle cx="55" cy="52" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="73" cy="55" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="57" cy="70" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="71" cy="74" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="53" cy="86" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="75" cy="90" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="64" cy="62" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/><circle cx="64" cy="84" r="4" fill="#c98a1f" stroke="#3a2410" stroke-width="2.4"/>
+<circle cx="51" cy="17" r="6" fill="#e0a634"/><circle cx="77" cy="17" r="6" fill="#e0a634"/><circle cx="51" cy="18" r="3" fill="#3a2410"/><circle cx="77" cy="18" r="3" fill="#3a2410"/>
+<circle cx="64" cy="28" r="15" fill="#e0a634"/>
+<ellipse cx="64" cy="19" rx="8" ry="6" fill="#f3dfae"/><ellipse cx="64" cy="15" rx="3" ry="2" fill="#3a2410"/>
+<circle cx="57" cy="25" r="2" fill="#2a1a08"/><circle cx="71" cy="25" r="2" fill="#2a1a08"/>
+<circle cx="58" cy="34" r="1.6" fill="#3a2410"/><circle cx="70" cy="34" r="1.6" fill="#3a2410"/><circle cx="64" cy="37" r="1.6" fill="#3a2410"/>
+</svg>

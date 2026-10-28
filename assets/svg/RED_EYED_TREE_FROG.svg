@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><title>RED_EYED_TREE_FROG</title>
+<g><ellipse cx="36" cy="92" rx="10" ry="20" fill="#4cb83a" transform="rotate(-20 36 92)"/>
+<path d="M46,58 L30,68" fill="none" stroke="#4cb83a" stroke-width="7" stroke-linecap="round"/>
+<circle cx="25" cy="70" r="3.4" fill="#f28a1e"/><circle cx="28" cy="75" r="3.4" fill="#f28a1e"/><circle cx="23" cy="64" r="3.4" fill="#f28a1e"/>
+<circle cx="24" cy="108" r="3.6" fill="#f28a1e"/><circle cx="31" cy="112" r="3.6" fill="#f28a1e"/><circle cx="18" cy="103" r="3.6" fill="#f28a1e"/>
+<ellipse cx="46" cy="74" rx="3" ry="9" fill="#3a6fd8"/><ellipse cx="43" cy="86" rx="2.4" ry="6" fill="#f2d23a"/></g><g transform="translate(128,0) scale(-1,1)"><ellipse cx="36" cy="92" rx="10" ry="20" fill="#4cb83a" transform="rotate(-20 36 92)"/>
+<path d="M46,58 L30,68" fill="none" stroke="#4cb83a" stroke-width="7" stroke-linecap="round"/>
+<circle cx="25" cy="70" r="3.4" fill="#f28a1e"/><circle cx="28" cy="75" r="3.4" fill="#f28a1e"/><circle cx="23" cy="64" r="3.4" fill="#f28a1e"/>
+<circle cx="24" cy="108" r="3.6" fill="#f28a1e"/><circle cx="31" cy="112" r="3.6" fill="#f28a1e"/><circle cx="18" cy="103" r="3.6" fill="#f28a1e"/>
+<ellipse cx="46" cy="74" rx="3" ry="9" fill="#3a6fd8"/><ellipse cx="43" cy="86" rx="2.4" ry="6" fill="#f2d23a"/></g>
+<ellipse cx="64" cy="70" rx="20" ry="28" fill="#52c13e"/><ellipse cx="64" cy="40" rx="22" ry="15" fill="#52c13e"/>
+<ellipse cx="64" cy="66" rx="10" ry="14" fill="#7fd868"/>
+<circle cx="64" cy="26" r="1.2" fill="#2f7a26"/><circle cx="61" cy="27" r="1.2" fill="#2f7a26"/><circle cx="67" cy="27" r="1.2" fill="#2f7a26"/>
+<circle cx="48" cy="30" r="9" fill="#e0262a"/><circle cx="80" cy="30" r="9" fill="#e0262a"/>
+<ellipse cx="48" cy="30" rx="2.2" ry="6" fill="#111"/><ellipse cx="80" cy="30" rx="2.2" ry="6" fill="#111"/>
+</svg>
